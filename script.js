@@ -80,13 +80,13 @@ function initRecipe (){
 function createActivity(id, row, column, type){
     var item;
     item = document.createElement("div");
-    item.setAttribute("class", "grid-item-activity");
+    item.setAttribute("class", "grid-item-row"+row);
     item.setAttribute("id", "itemA"+id);
     item.setAttribute("onmouseover", "highlight(id)");
     item.setAttribute("onmouseleave", "unhighlight(id)");
     item.innerText = type;
     item.style.gridColumn = column +"/ "+column;
-    item.style.gridRow = row +"/ "+row;
+    //item.style.gridRow = row +"/ "+row;
     return item;
 }
 
@@ -94,12 +94,12 @@ function createState(id, row, column, path){
     var item;
     var img;
     item = document.createElement("div");
-    item.setAttribute("class", "grid-item-state");
+    item.setAttribute("class", "grid-item-row"+row);
     item.setAttribute("id", "itemS"+id);
     item.setAttribute("onmouseover", "highlight(id)");
     item.setAttribute("onmouseleave", "unhighlight(id)");
     item.style.gridColumn = column +"/ "+column;
-    item.style.gridRow = row +"/ "+row;
+    //item.style.gridRow = row +"/ "+row;
     item.style.paddingRight = "5px";
     item.style.paddingLeft = "5px";
     img = document.createElement("img");
@@ -117,29 +117,25 @@ function addActivity(row, column, type){
     switch(type){
         case "MASHING": {
             recipes[row].flow.mash();
-            var newActivity = createActivity(lastCreatedActivityId, row, column + 2, type);
             break;
         }
         case "BOILING": {
             recipes[row].flow.boil();
-            var newActivity = createActivity(lastCreatedActivityId, row, column + 2, type);
             break;
         }
         case "FERMENTING": {
             recipes[row].flow.ferment();
-            var newActivity = createActivity(lastCreatedActivityId, row, column + 2, type);
             break;
         }
         case "BOTTLING":{
             recipes[row].flow.bottle();
-            var newActivity = createActivity(lastCreatedActivityId, row, column + 2, type);
             break;
         }
     }
     if(beginning){
         container.removeChild(document.getElementById("itemA1"))
-        var newActivity = createActivity(lastCreatedActivityId, row, column, type);
-        container.appendChild(newActivity);
+        var firstActivity = createActivity(lastCreatedActivityId, row, column, type);
+        container.appendChild(firstActivity);
         beginning = false;
     }else {
         //crea un nuovo stato con id incrementato
@@ -160,14 +156,16 @@ function addActivity(row, column, type){
 }
 
 function mergeActvities(row, column){
-    if(stackRecipe1[stackRecipe1.length-1] === "divide") {
+    if(stackRecipe[stackRecipe.length-1] === "divide") {
         var container = document.getElementById("grid-container");
         //crea il nuovo stato di merge
         lastCreatedActivityId += 1;
         var newActivity = createActivity(lastCreatedActivityId, currentState.row, currentState.column + 1);
         //modifica img stato merged riga secondaria
+
         document.getElementById("imgS" + lastCreatedStateId).src = "simbols/arrow5.png";
         //modifica img stato merged riga principale
+
         document.getElementById("imgS" + (lastCreatedStateId-1)).src = "simbols/arrow2.png";
         //crea il nuovo stato di merge
         lastCreatedStateId += 1;
@@ -182,10 +180,10 @@ function mergeActvities(row, column){
     }
 }
 
-function deleteActvity(row, column){
+function deleteActivity(){
     if(currentState.column>1) {
         var container = document.getElementById("grid-container");
-        switch (stackRecipe1[stackRecipe1.length-1]){
+        switch (stackRecipe.stack[stackRecipe.stack.length-1]){
             case "simple":{
                 container.removeChild(container.lastChild);
                 lastCreatedStateId -= 1;
@@ -193,7 +191,7 @@ function deleteActvity(row, column){
                 lastCreatedActivityId -= 1;
                 document.getElementById("imgS" + lastCreatedStateId).src = "simbols/arrow.png";
                 currentState.column -= 2;
-                stackRecipe.pop();
+                stackRecipe.stack.pop();
                 break;
             }
             case "divide":{
@@ -204,7 +202,7 @@ function deleteActvity(row, column){
                 lastCreatedStateId -= 3;
                 lastCreatedActivityId -= 2;
                 document.getElementById("imgS" + lastCreatedStateId).src = "simbols/arrow.png";
-                stackRecipe.pop();
+                stackRecipe.stack.pop();
                 break;
             }
             case "merge":{
@@ -215,7 +213,7 @@ function deleteActvity(row, column){
                 lastCreatedActivityId -= 1;
                 document.getElementById("imgS" + lastCreatedStateId).src = "simbols/arrow.png";
                 document.getElementById("imgS" + (lastCreatedStateId-1)).src = "simbols/arrow.png";
-                stackRecipe.pop();
+                stackRecipe.stack.pop();
                 break;
             }
 
@@ -228,18 +226,26 @@ function splitActivities(stateId, row, column){
     if(!(stackRecipe[stackRecipe.length-1] === "merge")) { //se l'ultima azione fatta non è merge
         var container = document.getElementById("grid-container");
         //crea due nuove attività
-        //lastCreatedActivityId += 1;
-        //var newActivity1 = createActivity(lastCreatedActivityId, currentState.row, currentState.column + 1);
+
         var newRow = row+1;
-        //var newRecipe = new Recipe(parseInt(recipes[row].id)+1, homebrewlib.newRecipe());
-        //recipes.push(newRecipe);
-        //recipes[newRow]= newRecipe;
 
         var newRecipe = recipes[row].flow.split(5);
-        if(recipes.length  = row+1) // se l'array contiene come ultimo elemento la ricetta corrente
+        if(recipes.length === row+1) // se l'array contiene come ultimo elemento la ricetta corrente
             recipes[newRow]= new Recipe(parseInt(recipes[row].id)+1, newRecipe);
         else{
-            addInTheMiddle(newRow, recipes, newRecipe);
+            for(var i=newRow; i<recipes.length; i++){
+                var shifter = document.getElementsByClassName("grid-item-row"+i);
+                for(var j=0; j<shifter.length; j){
+                    shifter[j].classList.add("grid-item-row"+(i+1));
+                    shifter[j].classList.remove("grid-item-row"+i);
+                }
+            }
+            //recipes[newRow]= new Recipe(parseInt(recipes[row].id)+1, newRecipe);
+            for(var i=newRow; i<recipes.length; i++){
+                recipes[i].id +=1;
+            }
+            recipes.splice(newRow, 0, new Recipe(parseInt(recipes[row].id)+1, newRecipe));
+            //addInTheMiddle(newRow, recipes, newRecipe);
         }
 
         lastCreatedActivityId += 1;
@@ -256,13 +262,6 @@ function splitActivities(stateId, row, column){
 
         currentState.column += 2;
         stackRecipe.addElementToStack("divide");
-        //stackRecipe.push("divide"); //aggiorna lo stackRecipe1
-
-        //var newRecipe = new Recipe(parseInt(recipes.get(row).id)+1, homebrewlib.newRecipe());
-        //recipes.push(newRecipe);
-        //recipes[row+1]= newRecipe;
-
-
 
     }
 }
@@ -281,8 +280,8 @@ function highlight(id) {
         obj.appendChild(showStateButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
     }
     else if (objSelected.id.indexOf("itemA") !== -1 && document.getElementById("activity-button") == null){
+        obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column), obj.innerText));
         obj.appendChild(showDeleteButton(parseInt(objSelected.row), parseInt(objSelected.column)));
-        obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column)));
     }
 
 
@@ -314,12 +313,39 @@ function showStateButton(stateId, row, column){
     return item;
 }
 
-function showActivityButton(row, column){
+function showActivityButton(row, column, type){
     var item = document.createElement("div");
     item.setAttribute("id", "activity-button");
     item.style.gridColumn = (column+1) +"/ "+(column+1);
     item.style.gridRow = row +"/ "+row;
     item.style.display = "inline-block";
+    if(column === 2 && row === 1)
+        type= "MASHING";
+    switch(type){
+        case "MASHING": {
+            item.appendChild(createActivityButton(row, column, "MASHING"));
+            item.appendChild(createActivityButton(row, column, "BOILING"));
+            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+        case "BOILING": {
+            item.appendChild(createActivityButton(row, column, "BOILING"));
+            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+        case "FERMENTING": {
+            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+        case "BOTTLING":{
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+    }
+    /*
     var buttonAddMashing = document.createElement("button");
     var buttonAddBoiling = document.createElement("button");
     var buttonAddFermentation = document.createElement("button");
@@ -340,7 +366,17 @@ function showActivityButton(row, column){
     item.appendChild(buttonAddBoiling);
     item.appendChild(buttonAddFermentation);
     item.appendChild(buttonAddBottling);
+    */
     return item;
+}
+
+function createActivityButton(row, column, text){
+    var button = document.createElement("button");
+    button.innerText = text;
+    button.onclick = function (){addActivity(row, column, text);}
+    button.setAttribute("class", "button");
+
+    return button;
 }
 
 function showDeleteButton(row, column){
@@ -351,9 +387,8 @@ function showDeleteButton(row, column){
     item.style.display = "inline-block";
     var buttonDelete = document.createElement("button");
     buttonDelete.innerText = "X";
-    buttonDelete.onclick = function (){
-        deleteActvity(row, column);
-    }
+    //buttonDelete.setAttribute("onclick", "deleteActivity();");
+    buttonDelete.onclick = function (){deleteActivity();}
     buttonDelete.setAttribute("class", "button");
     item.appendChild(buttonDelete);
     return item;
@@ -378,6 +413,7 @@ function addInTheMiddle(position, array, elementToAdd){
 
     for(var i=position; i<array.length; i++){
         newArray.push(array[i]);
+        array.splice(position)
     }
 
     array.push(elementToAdd);

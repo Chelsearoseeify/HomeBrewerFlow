@@ -32,11 +32,32 @@
     display: inline-block;
     margin-bottom: 20px;
 }
+
 .grid-item-activity{
     display: inline-block;
 }
 .grid-item-state{
     display: inline-block;
+}
+.grid-item-row1{
+    display: inline-block;
+    grid-row: 1/1;
+}
+.grid-item-row2{
+    display: inline-block;
+    grid-row: 2/2;
+}
+.grid-item-row3{
+    display: inline-block;
+    grid-row: 3/3;
+}
+.grid-item-row4{
+    display: inline-block;
+    grid-row: 4/4;
+}
+.grid-item-row5{
+    display: inline-block;
+    grid-row: 5/5;
 }
 .button{
     display: block;
