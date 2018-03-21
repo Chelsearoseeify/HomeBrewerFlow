@@ -56,3 +56,14 @@ li {
 .button{
     padding: 0px 0px 0px 0px;
 }
+
+.ui_input_small_fluid_right_labeled{
+    padding-left: 0.5em;
+    padding-right: 0em;
+    text-align: right;
+    display: block;
+}
+
+#mashing{
+    display: block;
+}
