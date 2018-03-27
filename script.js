@@ -1,7 +1,8 @@
-var addButton = document.getElementById("add");
-var divideButton = document.getElementById("divide");
-var mergeButton = document.getElementById("merge");
-var deleteButton = document.getElementById("delete");
+var addMashingButton = document.getElementById("addMashing");
+var addBoilingButton = document.getElementById("addBoiling");
+var addFermentingButton = document.getElementById("addFermentation");
+var addBottlingButton = document.getElementById("addBottling");
+
 var lastCreatedStateId = 1;
 var lastCreatedActivityId = 1;
 
@@ -50,21 +51,21 @@ initRecipe();
 
 
 
-addButton.onclick = function() {
-    addActivity();
+addMashingButton.onclick = function() {
+    addActivity(1, 2, "MASHING");
 }
 
-divideButton.onclick = function(){
-    splitActivities();
+addBoilingButton.onclick = function(){
+    addActivity(1, 2, "BOILING");
 
 }
 
-mergeButton.onclick = function () {
-    mergeActvities();
+addFermentingButton.onclick = function () {
+    addActivity(1, 2, "FERMENTATION");
 }
 
-deleteButton.onclick = function (){
-   deleteActvity();
+addBottlingButton.onclick = function (){
+    addActivity(1, 2, "BOTTLING");
 }
 
 //inizializza una ricetta
@@ -99,7 +100,6 @@ function createState(id, row, column, path){
     item.setAttribute("onmouseover", "highlight(id)");
     item.setAttribute("onmouseleave", "unhighlight(id)");
     item.style.gridColumn = column +"/ "+column;
-    //item.style.gridRow = row +"/ "+row;
     item.style.paddingRight = "5px";
     item.style.paddingLeft = "5px";
     img = document.createElement("img");
@@ -123,7 +123,7 @@ function addActivity(row, column, type){
             recipes[row].flow.boil();
             break;
         }
-        case "FERMENTING": {
+        case "FERMENTATION": {
             recipes[row].flow.ferment();
             break;
         }
@@ -146,8 +146,8 @@ function addActivity(row, column, type){
 
         var newActivity = createActivity(lastCreatedActivityId, row, column + 2, type);
 
-        container.appendChild(newActivity);
         container.appendChild(newState);
+        container.appendChild(newActivity);
 
         currentState.column += 2;
         stackRecipe.addElementToStack("simple");
@@ -171,8 +171,8 @@ function mergeActvities(row, column){
         lastCreatedStateId += 1;
         var newState = createState(lastCreatedStateId, currentState.row, currentState.column + 2, "simbols/arrow.png");
 
-        container.appendChild(newActivity);
         container.appendChild(newState);
+        container.appendChild(newActivity);
 
         currentState.column += 2;
         stackRecipe.addElementToStack("merge");
@@ -222,6 +222,38 @@ function deleteActivity(){
     }
 }
 
+function deleteActivityTwo(objToDeleteId, row){
+
+    var container = document.getElementById("grid-container");
+    var elementsInARow = document.getElementsByClassName("grid-item-row"+row);
+    var objToDelete = document.getElementById(objToDeleteId);
+    var objToDeleteStyle = window.getComputedStyle(objToDelete);
+    var columnObjToDelete = objToDeleteStyle.getPropertyValue('grid-column-start');
+    for(var i = elementsInARow.length-1; i>=0; i--) {
+        var otherObjStyle = window.getComputedStyle(elementsInARow[i]);
+        var columnOtherObject = otherObjStyle.getPropertyValue('grid-column-start');
+        if ((columnObjToDelete - 1) <= columnOtherObject && columnOtherObject != 1) {
+            container.removeChild(document.getElementById(elementsInARow[i].getAttribute("id")));
+            lastCreatedActivityId--;
+        }
+
+    }
+
+    if(columnObjToDelete == 2 && row== 1){
+        var div = document.createElement("div");
+        div.setAttribute("id", "itemA1");
+        div.setAttribute("class", "grid-item-row"+row);
+
+        div.appendChild(createActivityButton(row, columnObjToDelete, "MASHING"));
+        div.appendChild(createActivityButton(row, columnObjToDelete, "BOILING"));
+        div.appendChild(createActivityButton(row, columnObjToDelete, "FERMENTATION"));
+        div.appendChild(createActivityButton(row, columnObjToDelete, "BOTTLING"));
+
+        container.appendChild(div);
+    }
+
+}
+
 function splitActivities(stateId, row, column){
     if(!(stackRecipe[stackRecipe.length-1] === "merge")) { //se l'ultima azione fatta non è merge
         var container = document.getElementById("grid-container");
@@ -257,8 +289,8 @@ function splitActivities(stateId, row, column){
         lastCreatedStateId += 1;
         var splitState = createState(lastCreatedStateId, newRow, column, "simbols/arrow3.png");
 
-        container.appendChild(newActivity2);
         container.appendChild(splitState);
+        container.appendChild(newActivity2);
 
         currentState.column += 2;
         stackRecipe.addElementToStack("divide");
@@ -275,13 +307,13 @@ function highlight(id) {
     //obj.style.borderColor = "red";
     style = window.getComputedStyle(obj);
     objSelected.column = style.getPropertyValue('grid-column-start');
-    objSelected.row = style.getPropertyValue('grid-row-start');
+    objSelected.row = style.getPropertyValue('grid-row-Start');
     if(objSelected.id.indexOf("itemS")!== -1 && document.getElementById("state-button") == null){
         obj.appendChild(showStateButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
     }
     else if (objSelected.id.indexOf("itemA") !== -1 && document.getElementById("activity-button") == null){
         obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column), obj.innerText));
-        obj.appendChild(showDeleteButton(parseInt(objSelected.row), parseInt(objSelected.column)));
+        obj.appendChild(showDeleteButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
     }
 
 
@@ -335,7 +367,7 @@ function showActivityButton(row, column, type){
             item.appendChild(createActivityButton(row, column, "BOTTLING"));
             break;
         }
-        case "FERMENTING": {
+        case "FERMENTATION": {
             item.appendChild(createActivityButton(row, column, "FERMENTATION"));
             item.appendChild(createActivityButton(row, column, "BOTTLING"));
             break;
@@ -379,7 +411,7 @@ function createActivityButton(row, column, text){
     return button;
 }
 
-function showDeleteButton(row, column){
+function showDeleteButton(id, row, column){
     var item = document.createElement("div");
     item.setAttribute("id", "delete-button");
     item.style.gridColumn = (column-1) + "/ " + (column -1);
@@ -387,8 +419,7 @@ function showDeleteButton(row, column){
     item.style.display = "inline-block";
     var buttonDelete = document.createElement("button");
     buttonDelete.innerText = "X";
-    //buttonDelete.setAttribute("onclick", "deleteActivity();");
-    buttonDelete.onclick = function (){deleteActivity();}
+    buttonDelete.onclick = function (){deleteActivityTwo(id, row);}
     buttonDelete.setAttribute("class", "button");
     item.appendChild(buttonDelete);
     return item;
