@@ -77,40 +77,126 @@ function initRecipe (){
 }
 
 
-//inizializza una nuova attività
-function createActivity(id, row, column, type){
-    var item;
-    item = document.createElement("div");
-    item.setAttribute("class", "grid-item-row"+row);
-    item.setAttribute("id", "itemA"+id);
-    item.setAttribute("onmouseover", "highlight(id)");
-    item.setAttribute("onmouseleave", "unhighlight(id)");
-    item.innerText = type;
-    item.style.gridColumn = column +"/ "+column;
-    //item.style.gridRow = row +"/ "+row;
+function appear(id) {
+    var obj;
+    var style;
+    obj = document.getElementById(id);
+    objSelected.id = id;
+    style = window.getComputedStyle(obj);
+    objSelected.column = style.getPropertyValue('grid-column-start');
+    objSelected.row = style.getPropertyValue('grid-row-Start');
+    if(objSelected.id.indexOf("itemS")!== -1 && document.getElementById("state-button") == null){
+        obj.appendChild(showStateButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
+    }
+    else if (objSelected.id.indexOf("itemA") !== -1 && document.getElementById("activity-button") == null){
+        obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column), obj.innerText));
+        obj.appendChild(showDeleteButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
+    }
+}
+
+function disappear(id){
+    var obj;
+    obj = document.getElementById(id);
+    objSelected.id = id;
+    obj.style.background = "none";
+    if(objSelected.id.indexOf("itemS")!== -1)
+        obj.removeChild(document.getElementById("state-button"));
+    else if(objSelected.id.indexOf("itemA")!== -1) {
+        obj.removeChild(document.getElementById("delete-button"));
+        obj.removeChild(document.getElementById("activity-button"));
+    }
+
+}
+
+//mostra i pulsanti merge e split sullo stato
+function showStateButton(stateId, row, column){
+    var item = document.createElement("div");
+    item.setAttribute("id", "state-button");
+    item.style.gridColumn = (column+1) +"/ "+(column+1);
+    item.style.gridRow = row +"/ "+row;
+    item.style.display = "inline-block";
+    var buttonSplit = document.createElement("button");
+    var buttonMerge = document.createElement("button");
+    var splitImg = document.createElement("img");
+    var mergeImg = document.createElement("img");
+    splitImg.setAttribute("src", "simbols/icon/split.png");
+    splitImg.setAttribute("class", "icon");
+    mergeImg.setAttribute("src", "simbols/icon/merge.png");
+    mergeImg.setAttribute("class", "icon");
+    buttonSplit.appendChild(splitImg);
+    buttonMerge.appendChild(mergeImg);
+    buttonSplit.setAttribute("class", "button");
+    buttonSplit.onclick = function () { splitActivities(stateId, row, column); }
+    buttonMerge.setAttribute("class", "button");
+    buttonMerge.onclick = function () { mergeActvities(row, column); }
+
+    item.appendChild(buttonSplit);
+    item.appendChild(buttonMerge);
     return item;
 }
 
-function createState(id, row, column, path){
-    var item;
-    var img;
-    item = document.createElement("div");
-    item.setAttribute("class", "grid-item-row"+row);
-    item.setAttribute("id", "itemS"+id);
-    item.setAttribute("onmouseover", "highlight(id)");
-    item.setAttribute("onmouseleave", "unhighlight(id)");
-    item.style.gridColumn = column +"/ "+column;
-    item.style.paddingRight = "5px";
-    item.style.paddingLeft = "5px";
-    img = document.createElement("img");
-    img.setAttribute("src", path);
-    img.setAttribute("id", "imgS" +id);
-    img.style.paddingTop ="5px";
-
-    item.appendChild(img);
-
+//mostra i pulsanti che aggiungono attività
+function showActivityButton(row, column, type){
+    var item = document.createElement("div");
+    item.setAttribute("id", "activity-button");
+    item.style.gridColumn = (column+1) +"/ "+(column+1);
+    item.style.gridRow = row +"/ "+row;
+    item.style.display = "inline-block";
+    if(column === 2 && row === 1)
+        type= "MASHING";
+    switch(type){ // a seconda dell'attività si avranno più o meno scelte
+        case "MASHING": {
+            item.appendChild(createActivityButton(row, column, "MASHING"));
+            item.appendChild(createActivityButton(row, column, "BOILING"));
+            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+        case "BOILING": {
+            item.appendChild(createActivityButton(row, column, "BOILING"));
+            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+        case "FERMENTATION": {
+            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+        case "BOTTLING":{
+            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+            break;
+        }
+    }
     return item;
 }
+
+function createActivityButton(row, column, text){
+    var button = document.createElement("button");
+    button.innerText = text;
+    button.onclick = function (){addActivity(row, column, text);}
+    button.setAttribute("class", "button");
+
+    return button;
+}
+
+//mostra il pulsante 'elimina'
+function showDeleteButton(id, row, column){
+    var item = document.createElement("div");
+    item.setAttribute("id", "delete-button");
+    item.style.gridColumn = (column-1) + "/ " + (column -1);
+    item.style.gridRow = row +"/ "+row;
+    item.style.display = "inline-block";
+    var buttonDelete = document.createElement("button");
+    buttonDelete.innerText = "X";
+    buttonDelete.onclick = function (){deleteActivity(id, row);}
+    buttonDelete.setAttribute("class", "button");
+    item.appendChild(buttonDelete);
+    return item;
+}
+
+
+//aggiunge un'attività
 function addActivity(row, column, type){
 
     var container = document.getElementById("grid-container");
@@ -155,7 +241,8 @@ function addActivity(row, column, type){
     }
 }
 
-function mergeActvities(row, column){
+//unisce due attività
+function mergeActvities(){
     if(stackRecipe[stackRecipe.length-1] === "divide") {
         var container = document.getElementById("grid-container");
         //crea il nuovo stato di merge
@@ -180,49 +267,8 @@ function mergeActvities(row, column){
     }
 }
 
-function deleteActivity(){
-    if(currentState.column>1) {
-        var container = document.getElementById("grid-container");
-        switch (stackRecipe.stack[stackRecipe.stack.length-1]){
-            case "simple":{
-                container.removeChild(container.lastChild);
-                lastCreatedStateId -= 1;
-                container.removeChild(container.lastChild);
-                lastCreatedActivityId -= 1;
-                document.getElementById("imgS" + lastCreatedStateId).src = "simbols/arrow.png";
-                currentState.column -= 2;
-                stackRecipe.stack.pop();
-                break;
-            }
-            case "divide":{
-                for (var i = 0; i < 5; i++) {
-                    container.removeChild(container.lastChild);
-                }
-                currentState.column -= 2;
-                lastCreatedStateId -= 3;
-                lastCreatedActivityId -= 2;
-                document.getElementById("imgS" + lastCreatedStateId).src = "simbols/arrow.png";
-                stackRecipe.stack.pop();
-                break;
-            }
-            case "merge":{
-                container.removeChild(container.lastChild);
-                container.removeChild(container.lastChild);
-                currentState.column -= 2;
-                lastCreatedStateId -= 1;
-                lastCreatedActivityId -= 1;
-                document.getElementById("imgS" + lastCreatedStateId).src = "simbols/arrow.png";
-                document.getElementById("imgS" + (lastCreatedStateId-1)).src = "simbols/arrow.png";
-                stackRecipe.stack.pop();
-                break;
-            }
-
-
-        }
-    }
-}
-
-function deleteActivityTwo(objToDeleteId, row){
+//elimina un'attività e quelle successive sulla sua row
+function deleteActivity(objToDeleteId, row){
 
     var container = document.getElementById("grid-container");
     var elementsInARow = document.getElementsByClassName("grid-item-row"+row);
@@ -254,17 +300,17 @@ function deleteActivityTwo(objToDeleteId, row){
 
 }
 
+//divide la ricetta dando origine ad una nuova
 function splitActivities(stateId, row, column){
     if(!(stackRecipe[stackRecipe.length-1] === "merge")) { //se l'ultima azione fatta non è merge
         var container = document.getElementById("grid-container");
         //crea due nuove attività
-
         var newRow = row+1;
 
         var newRecipe = recipes[row].flow.split(5);
         if(recipes.length === row+1) // se l'array contiene come ultimo elemento la ricetta corrente
             recipes[newRow]= new Recipe(parseInt(recipes[row].id)+1, newRecipe);
-        else{
+        else{ //altrimenti shifta in basso le altre ricette per lasciar spazio a quella nuova
             for(var i=newRow; i<recipes.length; i++){
                 var shifter = document.getElementsByClassName("grid-item-row"+i);
                 for(var j=0; j<shifter.length; j){
@@ -277,7 +323,6 @@ function splitActivities(stateId, row, column){
                 recipes[i].id +=1;
             }
             recipes.splice(newRow, 0, new Recipe(parseInt(recipes[row].id)+1, newRecipe));
-            //addInTheMiddle(newRow, recipes, newRecipe);
         }
 
         lastCreatedActivityId += 1;
@@ -298,160 +343,41 @@ function splitActivities(stateId, row, column){
     }
 }
 
-function highlight(id) {
-    var obj;
-    var style;
-    obj = document.getElementById(id);
-    objSelected.id = id;
-    //obj.style.backgroundColor = "white";
-    //obj.style.borderColor = "red";
-    style = window.getComputedStyle(obj);
-    objSelected.column = style.getPropertyValue('grid-column-start');
-    objSelected.row = style.getPropertyValue('grid-row-Start');
-    if(objSelected.id.indexOf("itemS")!== -1 && document.getElementById("state-button") == null){
-        obj.appendChild(showStateButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
-    }
-    else if (objSelected.id.indexOf("itemA") !== -1 && document.getElementById("activity-button") == null){
-        obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column), obj.innerText));
-        obj.appendChild(showDeleteButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
-    }
 
-
-}
-
-function showStateButton(stateId, row, column){
-    var item = document.createElement("div");
-    item.setAttribute("id", "state-button");
-    item.style.gridColumn = (column+1) +"/ "+(column+1);
-    item.style.gridRow = row +"/ "+row;
-    item.style.display = "inline-block";
-    var buttonSplit = document.createElement("button");
-    var buttonMerge = document.createElement("button");
-    var splitImg = document.createElement("img");
-    var mergeImg = document.createElement("img");
-    splitImg.setAttribute("src", "simbols/icon/split.png");
-    splitImg.setAttribute("class", "icon");
-    mergeImg.setAttribute("src", "simbols/icon/merge.png");
-    mergeImg.setAttribute("class", "icon");
-    buttonSplit.appendChild(splitImg);
-    buttonMerge.appendChild(mergeImg);
-    buttonSplit.setAttribute("class", "button");
-    buttonSplit.onclick = function () { splitActivities(stateId, row, column); }
-    buttonMerge.setAttribute("class", "button");
-    buttonMerge.onclick = function () { mergeActvities(row, column); }
-
-    item.appendChild(buttonSplit);
-    item.appendChild(buttonMerge);
+//inizializza una nuova attività
+function createActivity(id, row, column, type){
+    var item;
+    item = document.createElement("div");
+    item.setAttribute("class", "grid-item-row"+row);
+    item.setAttribute("id", "itemA"+id);
+    item.setAttribute("onmouseover", "appear(id)");
+    item.setAttribute("onmouseleave", "disappear(id)");
+    item.innerText = type;
+    item.style.gridColumn = column +"/ "+column;
+    //item.style.gridRow = row +"/ "+row;
     return item;
 }
 
-function showActivityButton(row, column, type){
-    var item = document.createElement("div");
-    item.setAttribute("id", "activity-button");
-    item.style.gridColumn = (column+1) +"/ "+(column+1);
-    item.style.gridRow = row +"/ "+row;
-    item.style.display = "inline-block";
-    if(column === 2 && row === 1)
-        type= "MASHING";
-    switch(type){
-        case "MASHING": {
-            item.appendChild(createActivityButton(row, column, "MASHING"));
-            item.appendChild(createActivityButton(row, column, "BOILING"));
-            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
-            break;
-        }
-        case "BOILING": {
-            item.appendChild(createActivityButton(row, column, "BOILING"));
-            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
-            break;
-        }
-        case "FERMENTATION": {
-            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
-            break;
-        }
-        case "BOTTLING":{
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
-            break;
-        }
-    }
-    /*
-    var buttonAddMashing = document.createElement("button");
-    var buttonAddBoiling = document.createElement("button");
-    var buttonAddFermentation = document.createElement("button");
-    var buttonAddBottling = document.createElement("button");
-    buttonAddMashing.innerText = " ADD MASHING";
-    buttonAddBoiling.innerText = "ADD BOILING";
-    buttonAddFermentation.innerText = "ADD FERMENTATION";
-    buttonAddBottling.innerText = "ADD BOTTLING";
-    buttonAddMashing.onclick = function () { addActivity(row, column, "MASHING"); }
-    buttonAddMashing.setAttribute("class", "button");
-    buttonAddBoiling.onclick = function () { addActivity(row, column, "BOILING"); }
-    buttonAddBoiling.setAttribute("class", "button");
-    buttonAddFermentation.onclick = function (ev) { addActivity(row, column, "FERMENTATION"); }
-    buttonAddFermentation.setAttribute("class", "button");
-    buttonAddBottling.onclick = function () { addActivity(row, column, "BOTTLING"); }
-    buttonAddBottling.setAttribute("class", "button");
-    item.appendChild(buttonAddMashing);
-    item.appendChild(buttonAddBoiling);
-    item.appendChild(buttonAddFermentation);
-    item.appendChild(buttonAddBottling);
-    */
+//inizializza un nuovo stato
+function createState(id, row, column, path){
+    var item;
+    var img;
+    item = document.createElement("div");
+    item.setAttribute("class", "grid-item-row"+row);
+    item.setAttribute("id", "itemS"+id);
+    item.setAttribute("onmouseover", "appear(id)");
+    item.setAttribute("onmouseleave", "disappear(id)");
+    item.style.gridColumn = column +"/ "+column;
+    item.style.paddingRight = "5px";
+    item.style.paddingLeft = "5px";
+    img = document.createElement("img");
+    img.setAttribute("src", path);
+    img.setAttribute("id", "imgS" +id);
+    img.style.paddingTop ="5px";
+
+    item.appendChild(img);
+
     return item;
 }
 
-function createActivityButton(row, column, text){
-    var button = document.createElement("button");
-    button.innerText = text;
-    button.onclick = function (){addActivity(row, column, text);}
-    button.setAttribute("class", "button");
 
-    return button;
-}
-
-function showDeleteButton(id, row, column){
-    var item = document.createElement("div");
-    item.setAttribute("id", "delete-button");
-    item.style.gridColumn = (column-1) + "/ " + (column -1);
-    item.style.gridRow = row +"/ "+row;
-    item.style.display = "inline-block";
-    var buttonDelete = document.createElement("button");
-    buttonDelete.innerText = "X";
-    buttonDelete.onclick = function (){deleteActivityTwo(id, row);}
-    buttonDelete.setAttribute("class", "button");
-    item.appendChild(buttonDelete);
-    return item;
-}
-
-function unhighlight(id){
-    var obj;
-    obj = document.getElementById(id);
-    objSelected.id = id;
-    obj.style.background = "none";
-    if(objSelected.id.indexOf("itemS")!== -1)
-        obj.removeChild(document.getElementById("state-button"));
-    else if(objSelected.id.indexOf("itemA")!== -1) {
-        obj.removeChild(document.getElementById("delete-button"));
-        obj.removeChild(document.getElementById("activity-button"));
-    }
-
-}
-
-function addInTheMiddle(position, array, elementToAdd){
-    var newArray=[];
-
-    for(var i=position; i<array.length; i++){
-        newArray.push(array[i]);
-        array.splice(position)
-    }
-
-    array.push(elementToAdd);
-
-    for(var i=0; i<array.length; i++){
-        array.push(newArray[i]);
-    }
-
-
-}
