@@ -8,27 +8,21 @@
 <body>
 
 <h1>The grid-column Property</h1>
-<div id="button-space" class="button-space">
-    <button class="button_"><img src="simbols/icon/add.png" id="add" class="icon"></button>
-    <button class="button_"><img src="simbols/icon/delete.png" id="delete" class="icon"></button>
-    <button class="button_"><img src="simbols/icon/split.png" id="divide" class="icon"></button>
-    <button class="button_"><img src="simbols/icon/merge.png" id="merge" class="icon"></button>
-</div>
-<div id="grid-container">
-    <div class="grid-item-state" id="itemS1" onclick="selectElement(id)" onmouseover="highlight(id)" onmouseleave="unhighlight(id)">
-        <img src="simbols/arrow.png" id="imgS1">
-    </div>
-    <div class="grid-item-activity" id ="itemA1" onclick="selectElement(id)" onmouseover="highlight(id)" onmouseleave="unhighlight(id)">
-        A1
-    </div>
-    <!--
-    <div id="state-button">
-        <button class="button"><img src="simbols/icon/split.png" id="divide1" class="icon"></button>
-        <button class="button"><img src="simbols/icon/merge.png" id="merge1" class="icon"></button>
-    </div>
-    -->
 
+<div id="grid-container">
+        <div class="grid-item-row1" id="itemS1" onmouseover="appear(id)" onmouseleave="disappear(id)">
+            <img src="simbols/arrow.png" id="imgS1">
+        </div>
+        <div class="grid-item-row1" id ="itemA1">
+            <button class="button_" id="addMashing" >MASHING</button>
+            <button class="button_" id="addBoiling" >BOILING</button>
+            <button class="button_" id="addFermentation" >FERMENTATION</button>
+            <button class="button_" id="addBottling" >BOTTLING</button>
+        </div>
 </div>
+
+
+<script src="homebrewlib.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
