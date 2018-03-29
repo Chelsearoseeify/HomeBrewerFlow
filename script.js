@@ -1,12 +1,19 @@
-var addMashingButton = document.getElementById("addMashing");
-var addBoilingButton = document.getElementById("addBoiling");
-var addFermentingButton = document.getElementById("addFermentation");
-var addBottlingButton = document.getElementById("addBottling");
-
 var lastCreatedStateId = 1;
 var lastCreatedActivityId = 1;
 
-var beginning = true;
+var state = Object.freeze({
+    "MASH_WATER":"Mash water",
+    "POST_MASH_WORT":"Post-mash wort",
+    "POST_BOIL_WORT":"Post-boil wort",
+    "FERMENTED_WORT":"Fermented wort",
+    "BEER":"Beer"});
+
+var activity = Object.freeze({
+    "MASHING":"MASHING",
+    "BOILING":"BOILING",
+    "FERMENTATION":"FERMENTATION",
+    "BOTTLING":"BOTTLING"});
+
 var currentState={
     column:2,
     row:1,
@@ -17,32 +24,17 @@ var objSelected = {
     row: 1
 }
 
-function StackRecipe(id, first_action){
-    this.id = id;
+function Recipe(id, recipe, first_action){
+    this.id = id; //id corresponds to the row in which the recipe is setted
+    this.flow = recipe;
     this.stack = [first_action];
 
     this.addElementToStack = function(action){
         this.stack.push(action);
     }
-}
-
-function Recipe(id, recipe){
-    this.id = id; //id corresponds to the row in which the recipe is setted
-    this.flow = recipe;
 
 }
 
-var stackRecipe = new StackRecipe(1, "simple");
-
-/*
-var stackRecipe = {
-    id : 1,
-    stack :["simple"]
-}
-*/
-
-var recipesActions = [];
-recipesActions.push(stackRecipe);
 
 var recipes = [];
 var recipe;
@@ -50,30 +42,11 @@ var recipe;
 initRecipe();
 
 
-
-addMashingButton.onclick = function() {
-    addActivity(1, 2, "MASHING");
-}
-
-addBoilingButton.onclick = function(){
-    addActivity(1, 2, "BOILING");
-
-}
-
-addFermentingButton.onclick = function () {
-    addActivity(1, 2, "FERMENTATION");
-}
-
-addBottlingButton.onclick = function (){
-    addActivity(1, 2, "BOTTLING");
-}
-
 //inizializza una ricetta
 function initRecipe (){
-    recipe = new Recipe(1, homebrewlib.newRecipe());
+    recipe = new Recipe(1, homebrewlib.newRecipe(), state.MASH_WATER);
     recipe.flow.reset();
     recipes[1] = recipe;
-    //recipes.push(recipe);
 }
 
 
@@ -87,9 +60,10 @@ function appear(id) {
     objSelected.row = style.getPropertyValue('grid-row-Start');
     if(objSelected.id.indexOf("itemS")!== -1 && document.getElementById("state-button") == null){
         obj.appendChild(showStateButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
+        obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column),
+            recipes[objSelected.row].stack[recipes[objSelected.row].stack.length -1]));
     }
-    else if (objSelected.id.indexOf("itemA") !== -1 && document.getElementById("activity-button") == null){
-        obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column), obj.innerText));
+    else if (objSelected.id.indexOf("itemA") !== -1 && document.getElementById("delete-button") == null){
         obj.appendChild(showDeleteButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
     }
 }
@@ -99,11 +73,12 @@ function disappear(id){
     obj = document.getElementById(id);
     objSelected.id = id;
     obj.style.background = "none";
-    if(objSelected.id.indexOf("itemS")!== -1)
+    if(objSelected.id.indexOf("itemS")!== -1){
         obj.removeChild(document.getElementById("state-button"));
+        obj.removeChild(document.getElementById("activity-button"));
+    }
     else if(objSelected.id.indexOf("itemA")!== -1) {
         obj.removeChild(document.getElementById("delete-button"));
-        obj.removeChild(document.getElementById("activity-button"));
     }
 
 }
@@ -142,29 +117,32 @@ function showActivityButton(row, column, type){
     item.style.gridColumn = (column+1) +"/ "+(column+1);
     item.style.gridRow = row +"/ "+row;
     item.style.display = "inline-block";
+    /*
     if(column === 2 && row === 1)
         type= "MASHING";
+        */
     switch(type){ // a seconda dell'attività si avranno più o meno scelte
-        case "MASHING": {
-            item.appendChild(createActivityButton(row, column, "MASHING"));
-            item.appendChild(createActivityButton(row, column, "BOILING"));
-            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+        case state.MASH_WATER:
+        case state.POST_MASH_WORT: {
+            item.appendChild(createActivityButton(row, column, activity.MASHING));
+            item.appendChild(createActivityButton(row, column, activity.BOILING));
+            item.appendChild(createActivityButton(row, column, activity.FERMENTATION));
+            item.appendChild(createActivityButton(row, column, activity.BOTTLING));
             break;
         }
-        case "BOILING": {
-            item.appendChild(createActivityButton(row, column, "BOILING"));
-            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+        case state.POST_BOIL_WORT: {
+            item.appendChild(createActivityButton(row, column, activity.BOILING));
+            item.appendChild(createActivityButton(row, column, activity.FERMENTATION));
+            item.appendChild(createActivityButton(row, column, activity.BOTTLING));
             break;
         }
-        case "FERMENTATION": {
-            item.appendChild(createActivityButton(row, column, "FERMENTATION"));
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+        case state.FERMENTED_WORT: {
+            item.appendChild(createActivityButton(row, column, activity.FERMENTATION));
+            item.appendChild(createActivityButton(row, column, activity.BOTTLING));
             break;
         }
-        case "BOTTLING":{
-            item.appendChild(createActivityButton(row, column, "BOTTLING"));
+        case state.BEER:{
+            item.appendChild(createActivityButton(row, column, activity.BOTTLING));
             break;
         }
     }
@@ -200,45 +178,51 @@ function showDeleteButton(id, row, column){
 function addActivity(row, column, type){
 
     var container = document.getElementById("grid-container");
+    var recipe = recipes[row].flow;
     switch(type){
-        case "MASHING": {
-            recipes[row].flow.mash();
+        case activity.MASHING: {
+            recipe.mash();
             break;
         }
-        case "BOILING": {
+        case activity.BOILING: {
             recipes[row].flow.boil();
             break;
         }
-        case "FERMENTATION": {
+        case activity.FERMENTATION: {
             recipes[row].flow.ferment();
             break;
         }
-        case "BOTTLING":{
+        case activity.BOTTLING:{
             recipes[row].flow.bottle();
             break;
         }
     }
+
+
+    recipes[row].addElementToStack(recipe.state[recipe.state.length-1].name);
+
+    /*
     if(beginning){
         container.removeChild(document.getElementById("itemA1"))
         var firstActivity = createActivity(lastCreatedActivityId, row, column, type);
         container.appendChild(firstActivity);
         beginning = false;
-    }else {
-        //crea un nuovo stato con id incrementato
-        lastCreatedStateId += 1;
-        var newState = createState(lastCreatedStateId, row, column + 1, "simbols/arrow.png");
-        //crea una nuova attività con id incrementato
-        lastCreatedActivityId += 1;
+    }else {*/
 
-        var newActivity = createActivity(lastCreatedActivityId, row, column + 2, type);
+    //crea una nuova attività con id incrementato
+    lastCreatedActivityId += 1;
 
-        container.appendChild(newState);
-        container.appendChild(newActivity);
+    var newActivity = createActivity(lastCreatedActivityId, row, column + 1, type);
+    //crea un nuovo stato con id incrementato
+    lastCreatedStateId += 1;
+    var newState = createState(lastCreatedStateId, row, column + 2, "simbols/arrow.png");
 
-        currentState.column += 2;
-        stackRecipe.addElementToStack("simple");
-        //stackRecipe.push("simple"); //aggiorna lo stackRecipe1
-    }
+    container.appendChild(newActivity);
+    container.appendChild(newState);
+
+    currentState.column += 2;
+    //stackRecipe.push("simple"); //aggiorna lo stackRecipe1
+
 }
 
 //unisce due attività
@@ -262,7 +246,7 @@ function mergeActvities(){
         container.appendChild(newActivity);
 
         currentState.column += 2;
-        stackRecipe.addElementToStack("merge");
+        //stackRecipe.addElementToStack("merge");
         //stackRecipe.push("merge"); //aggiorna lo stackRecipe1
     }
 }
@@ -282,65 +266,46 @@ function deleteActivity(objToDeleteId, row){
             container.removeChild(document.getElementById(elementsInARow[i].getAttribute("id")));
             lastCreatedActivityId--;
         }
+        currentState.column --;
 
     }
-
-    if(columnObjToDelete == 2 && row== 1){
-        var div = document.createElement("div");
-        div.setAttribute("id", "itemA1");
-        div.setAttribute("class", "grid-item-row"+row);
-
-        div.appendChild(createActivityButton(row, columnObjToDelete, "MASHING"));
-        div.appendChild(createActivityButton(row, columnObjToDelete, "BOILING"));
-        div.appendChild(createActivityButton(row, columnObjToDelete, "FERMENTATION"));
-        div.appendChild(createActivityButton(row, columnObjToDelete, "BOTTLING"));
-
-        container.appendChild(div);
-    }
-
 }
 
 //divide la ricetta dando origine ad una nuova
 function splitActivities(stateId, row, column){
-    if(!(stackRecipe[stackRecipe.length-1] === "merge")) { //se l'ultima azione fatta non è merge
-        var container = document.getElementById("grid-container");
-        //crea due nuove attività
-        var newRow = row+1;
+    var container = document.getElementById("grid-container");
+    //crea due nuove attività
+    var newRow = row+1;
 
-        var newRecipe = recipes[row].flow.split(5);
-        if(recipes.length === row+1) // se l'array contiene come ultimo elemento la ricetta corrente
-            recipes[newRow]= new Recipe(parseInt(recipes[row].id)+1, newRecipe);
-        else{ //altrimenti shifta in basso le altre ricette per lasciar spazio a quella nuova
-            for(var i=newRow; i<recipes.length; i++){
-                var shifter = document.getElementsByClassName("grid-item-row"+i);
-                for(var j=0; j<shifter.length; j){
-                    shifter[j].classList.add("grid-item-row"+(i+1));
-                    shifter[j].classList.remove("grid-item-row"+i);
-                }
+    var newRecipe = recipes[row].flow.split(5);
+    if(recipes.length === row+1) // se l'array contiene come ultimo elemento la ricetta corrente
+        recipes[newRow] = new Recipe(parseInt(recipes[row].id) + 1, newRecipe);
+
+    else{ //altrimenti shifta in basso le altre ricette per lasciar spazio a quella nuova
+        for(var i=newRow; i<recipes.length; i++){
+            var shifter = document.getElementsByClassName("grid-item-row"+i);
+            for(var j=0; j<shifter.length; j){
+                shifter[j].classList.add("grid-item-row"+(i+1));
+                shifter[j].classList.remove("grid-item-row"+i);
             }
-            //recipes[newRow]= new Recipe(parseInt(recipes[row].id)+1, newRecipe);
-            for(var i=newRow; i<recipes.length; i++){
-                recipes[i].id +=1;
-            }
-            recipes.splice(newRow, 0, new Recipe(parseInt(recipes[row].id)+1, newRecipe));
         }
-
-        lastCreatedActivityId += 1;
-        var type = document.getElementById("itemA"+stateId.slice(5,6)).innerText;
-        var newActivity2 = createActivity(lastCreatedActivityId, newRow, column + 1, type);
-        //aggiorna img ultimo stato
-        document.getElementById("imgS" + stateId.slice(5,6)).src = "simbols/arrow2.png";
-        //crea tre nuovi stati
-        lastCreatedStateId += 1;
-        var splitState = createState(lastCreatedStateId, newRow, column, "simbols/arrow3.png");
-
-        container.appendChild(splitState);
-        container.appendChild(newActivity2);
-
-        currentState.column += 2;
-        stackRecipe.addElementToStack("divide");
-
+        //recipes[newRow]= new Recipe(parseInt(recipes[row].id)+1, newRecipe);
+        for(var i=newRow; i<recipes.length; i++){
+            recipes[i].id +=1;
+        }
+        recipes.splice(newRow, 0, new Recipe(parseInt(recipes[row].id)+1, newRecipe));
     }
+
+
+    var name = recipes[row].flow.state[(column-1)/2].name
+    recipes[newRow].addElementToStack(name);
+
+    document.getElementById("imgS" + stateId.slice(5,6)).src = "simbols/arrow2.png";
+
+    lastCreatedStateId += 1;
+    var splitState = createState(lastCreatedStateId, newRow, column, "simbols/arrow3.png");
+    container.appendChild(splitState);
+
 }
 
 
