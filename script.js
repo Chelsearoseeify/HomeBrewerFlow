@@ -33,6 +33,10 @@ function Recipe(id, recipe, first_action){
         this.stack.push(action);
     }
 
+    this.removeLastElementFromStack = function(){
+        this.stack.pop();
+    }
+
 }
 
 
@@ -201,14 +205,6 @@ function addActivity(row, column, type){
 
     recipes[row].addElementToStack(recipe.state[recipe.state.length-1].name);
 
-    /*
-    if(beginning){
-        container.removeChild(document.getElementById("itemA1"))
-        var firstActivity = createActivity(lastCreatedActivityId, row, column, type);
-        container.appendChild(firstActivity);
-        beginning = false;
-    }else {*/
-
     //crea una nuova attività con id incrementato
     lastCreatedActivityId += 1;
 
@@ -262,9 +258,13 @@ function deleteActivity(objToDeleteId, row){
     for(var i = elementsInARow.length-1; i>=0; i--) {
         var otherObjStyle = window.getComputedStyle(elementsInARow[i]);
         var columnOtherObject = otherObjStyle.getPropertyValue('grid-column-start');
-        if ((columnObjToDelete - 1) <= columnOtherObject && columnOtherObject != 1) {
+        if ((columnObjToDelete - 1) < columnOtherObject && columnOtherObject != 1) {
             container.removeChild(document.getElementById(elementsInARow[i].getAttribute("id")));
             lastCreatedActivityId--;
+            if(i%2 == 0){
+                recipes[row].flow.undo();
+                recipes[row].removeLastElementFromStack();
+            }
         }
         currentState.column --;
 
