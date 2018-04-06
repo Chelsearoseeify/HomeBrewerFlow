@@ -54,14 +54,15 @@ function initRecipe (){
 }
 
 
-function appear(id) {
+function appear() {
+    var id = event.currentTarget.id;
     var obj;
     var style;
     obj = document.getElementById(id);
     objSelected.id = id;
     style = window.getComputedStyle(obj);
     objSelected.column = style.getPropertyValue('grid-column-start');
-    objSelected.row = style.getPropertyValue('grid-row-Start');
+    objSelected.row = style.getPropertyValue('grid-row-start');
     if(objSelected.id.indexOf("itemS")!== -1 && document.getElementById("state-button") == null){
         obj.appendChild(showStateButton(id, parseInt(objSelected.row), parseInt(objSelected.column)));
         obj.appendChild(showActivityButton(parseInt(objSelected.row), parseInt(objSelected.column),
@@ -72,7 +73,8 @@ function appear(id) {
     }
 }
 
-function disappear(id){
+function disappear(){
+    var id = event.currentTarget.id;
     var obj;
     obj = document.getElementById(id);
     objSelected.id = id;
@@ -315,8 +317,10 @@ function createActivity(id, row, column, type){
     item = document.createElement("div");
     item.setAttribute("class", "grid-item-row"+row);
     item.setAttribute("id", "itemA"+id);
-    item.setAttribute("onmouseover", "appear(id)");
-    item.setAttribute("onmouseleave", "disappear(id)");
+    item.onmouseover = function (ev) { appear(ev.currentTarget.id); }
+    item.onmouseleave = function (ev) {disappear(ev.currentTarget.id);}
+    //item.setAttribute("onmouseover", "appear(id)");
+    //item.setAttribute("onmouseleave", "disappear(id)");
     item.innerText = type;
     item.style.gridColumn = column +"/ "+column;
     //item.style.gridRow = row +"/ "+row;
@@ -330,8 +334,8 @@ function createState(id, row, column, path){
     item = document.createElement("div");
     item.setAttribute("class", "grid-item-row"+row);
     item.setAttribute("id", "itemS"+id);
-    item.setAttribute("onmouseover", "appear(id)");
-    item.setAttribute("onmouseleave", "disappear(id)");
+    item.onmouseover = function (ev) { appear(ev.currentTarget.id); }
+    item.onmouseleave = function (ev) {disappear(ev.currentTarget.id);}
     item.style.gridColumn = column +"/ "+column;
     item.style.paddingRight = "5px";
     item.style.paddingLeft = "5px";
