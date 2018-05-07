@@ -131,6 +131,7 @@ function setObjectSelected(id){
 function appear() {
     let id = event.currentTarget.id;
     let obj = document.getElementById("buttons-"+id);
+    obj.style.display = "flex";
     let targetObj = setObjectSelected(id);
 
     if (targetObj.type === "flow" && document.getElementById("flow-button") == null) {
@@ -147,6 +148,7 @@ function appear() {
 function disappear(){
     let id = event.currentTarget.id;
     let obj = document.getElementById("buttons-"+id);
+    obj.style.display = "none";
     let targetObj = setObjectSelected(id);
     if (targetObj.type === "flow") {
         obj.removeChild(document.getElementById("flow-button"));
