@@ -6,17 +6,138 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="header">
+    <h1>
+        <img src="symbols/icon/justlogo.png" width="38px" height="60px" style="vertical-align:middle">
+        Graphic Recipe</h1>
+</div>
 
-<h1>The grid-column Property</h1>
+<div style="margin-bottom: 2em; display: inline-block;">
+    <div class="ui input fluid" style="width:200px;">
+        <input id="recipe_name" value="Nome ricetta" type="text" style="text-align:left;"/>
+        <button onclick="setRecipeName()">Save</button>
+    </div>
+</div>
 
 <div id="grid-container">
-        <div class="grid-item-row1" id="itemS1" onmouseover="appear(id)" onmouseleave="disappear(id)">
-            <img src="simbols/arrow.png" id="imgS1">
+
+    <div class="grid-item-row1" id="el0" type="flow" position="0" about="Mash water" onmouseover="appear()" onmouseleave="disappear()">
+        <div class="elem-container">
+            <img src="symbols/arrow.png" id="imgS0" class="img">
+            <div id="params-el0" class="params">
+                <p>Volume:<input id ="abv-el0" class="param" type="number" style="width: 3em"></p>
+                <p>Densità originale:<input id ="og-el0" class="param" type="number" style="width: 3em"></p>
+                <p>Densità finale:<input id ="fg-el0" class="param" type="number" style="width: 3em"></p>
+                <p>Alcol (vol):<input id ="vol-el0" class="param" type="number" style="width: 3em"></p>
+                <p>Colore (EBC):<input id ="ebc-el0" class="param" type="number" style="width: 3em"></p>
+                <p>Amarezza (IBU):<input id ="ibu-el0" class="param" type="number" style="width: 3em"></p>
+                <p>Carbonazione (g/l):<input id ="co2-el0" class="param" type="number" style="width: 3em"></p>
+            </div>
+            <div id="buttons-el0" class="buttons">
+
+            </div>
         </div>
+    </div>
+</div>
+
+<div id="wrapper_mash" about="false" ondblclick="hideData()">
+    <h3 >Mash</h3>
+
+    <div class="data" id="data_mash">
+        <p>Acqua Mashing:<input type="number" style="width: 5em" id="mash_mash_water">litri</p>
+        <p>Acqua Sparging:<input type="number" style="width: 5em" id="mash_sparge_water">litri</p>
+        <p>Efficienza:<input type="number" style="width: 5em" id="mash_efficiency">%</p>
+        <p id="malts">Malti
+            <select name="malts">
+                <option>Maris Otter</option>
+                <option>Crystal</option>
+                <option>Brown Malt</option>
+            </select>
+        <p><input style="width: 5em">EBC</p>
+        <p><input style="width: 5em">Kg</p>
+        </p>
+        <p>Volume:<input type="number" style="width: 5em">litri</p>
+        <p>Perdite:<input type="number" style="width: 5em" id="mash_mash_loss">litri</p>
+        <p>Densità:<input type="number" style="width: 5em">Kg/l</p>
+
+        <button>Save</button>
+    </div>
+
+
+</div>
+
+<div id="wrapper_boil" about="false" ondblclick="hideData()">
+
+    <h3>Boil</h3>
+    <div class="data" id="data_boil">
+        <p>Durata:<input type="number" style="width: 5em" id="boil_time">min</p>
+        <p>Whirpool:<input type="number" style="width: 5em" id="boil_whirpool">min</p>
+        <p id="hops">Luppoli
+            <select name="hops">
+                <option>Maris Otter</option>
+                <option>Crystal</option>
+                <option>Brown Malt</option>
+            </select>
+        </p>
+        <p>Zucchero:<input type="number" style="width: 5em" id="boil_sugar">kg</p>
+        <p>Acqua:<input type="number" style="width: 5em" id="boil_water">litri</p>
+        <p>Volume:<input type="number" style="width: 5em">litri</p>
+        <p>Perdite:<input type="number" style="width: 5em">litri</p>
+        <p>Densità:<input type="number" style="width: 5em">Kg/l</p>
+
+        <button>Save</button>
+    </div>
+
+
+
+</div>
+
+<!-- FERMENTATION -->
+<div id="wrapper_ferment" about="false" ondblclick="hideData()">
+
+    <h3>Ferment</h3>
+    <div class="data" id="data_ferment">
+        <p>Temperatura:<input type="number" style="width: 5em" id="ferment_temp">°C</p>
+        <p id="yeast">Lievito
+            <select name="yeast">
+                <option>Maris Otter</option>
+                <option>Crystal</option>
+                <option>Brown Malt</option>
+            </select>
+        <p>Zucchero:<input type="number" style="width: 5em" id="ferment_sugar">kg</p>
+        <p>Acqua:<input type="number" style="width: 5em" id="ferment_water">litri</p>
+        <p>Volume:<input type="number" style="width: 5em">litri</p>
+        <p>Perdite:<input type="number" style="width: 5em">litri</p>
+        <p>Densità:<input type="number" style="width: 5em">Kg/l</p>
+        </p>
+
+        <button>Save</button>
+    </div>
+
+
+
+</div>
+
+<div id="wrapper_bottle" about="false" onclick="showData()" ondblclick="hideData()">
+
+    <h3>Bottle</h3>
+    <div class="data" id="data_bottle">
+        <p>Saccarosio:<input type="number" style="width: 5em" id="bottle_sucrose">kg</p>
+        <p>Volume:<input type="number" style="width: 5em">litri</p>
+        <p>Perdite:<input type="number" style="width: 5em">litri</p>
+        <p>Co2:<input type="number" style="width: 5em">g/l</p>
+
+        <button>Save</button>
+    </div>
+
+
+
+</div>
+
 </div>
 
 
-<script src="homebrewlib.min.js"></script>
+<script src="node_modules/homebrewlib/dist/homebrewlib.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

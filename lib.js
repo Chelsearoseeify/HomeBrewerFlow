@@ -231,12 +231,12 @@ function Recipe() {
 
     };
 
-    // the state stores the wort properties at each stage of the production
+    // the flow stores the wort properties at each stage of the production
     // (e.g., mash_water, pre_boil, post_boil)
     // the last entry in the array is the output of the last production step
     // the first entry is by default the mash water
     this.state = [
-        { name : 'Mash water',                  // meaningful name of wort state
+        { name : 'Mash water',                  // meaningful name of wort flow
             vol  : this.process.mash.mash_water,  // volume of wort [l]: positive, decimal number
             og   : 1,                             // original gravity reading [kg/l]
             fg   : 1,                             // final gravity reading [kg/l]
@@ -509,7 +509,7 @@ function Recipe() {
         return this.mash().boil().ferment().bottle();
     }
 
-    // drops the last productin step from the state of the production
+    // drops the last productin step from the flow of the production
     this.undo = function () {
         if ( this.state.length > 1 )
             this.state.pop();
@@ -527,7 +527,7 @@ function Recipe() {
         branch.process = JSON.parse(JSON.stringify(this.process));
         // split also all ingredients?
 
-        branch.state = JSON.parse(JSON.stringify(this.state));
+        branch.flow = JSON.parse(JSON.stringify(this.state));
         while (branch.state.length > 1)
             branch.state.shift();
         branch.state[0].vol = volume;
