@@ -28,7 +28,7 @@
         <div class="elem-container">
             <div id="flow-buttons-el0" class="flow-buttons"></div>
             <img src="symbols/tubing/begin.png" id="imgS0" class="img" height="200px" >
-            <div   id="params-el0" class="params">
+            <div   id="params-el0" class="params" about="false">
                 <p id ="vol-el0" class="param"></p>
                 <p id ="og-el0" class="param"></p>
                 <p id ="fg-el0" class="param"></p>
@@ -48,20 +48,24 @@
     </h3>
 
     <div class="data" id="data_mash">
-        <p>Acqua mashing:<input type="number" style="width: 3em" id="mash_mash_water"> l</p>
-        <p>Acqua sparging:<input type="number" style="width: 3em" id="mash_sparge_water"> l</p>
-        <p>Efficienza:<input type="number" style="width: 3em" id="mash_efficiency"> %</p>
-        <div>
+        <label>Acqua mashing:<input type="number" step="0.1" style="width: 3em" id="mash_mash_water" onchange="updateData()"> l</label>
+        <br/>
+        <label>Acqua sparging:<input type="number" step="0.1" style="width: 3em" id="mash_sparge_water" onchange="updateData()"> l</label>
+        <br/>
+        <label>Efficienza:<input type="number" step="0.1" style="width: 3em" id="mash_efficiency" onchange="updateData()"> %</label>
+        <div id="mash_malts">
             <p>Malti</p>
             <div id="malt0">
-                <select name="malt0" id="mash_malt0"/>
-                <p><input type="number" style="width: 3em" id="mash_EBC0"> EBC
-                    <input type="number" style="width: 3em" id="mash_weight0"> kg</p>
+                <select name="malt0" id="mash_malt0" onchange="setOptionParams()"></select>
+                <label>EBC<input type="number" step="0.1" style="width: 3em" id="mash_EBC0" onchange="updateData()"></label>
+                <label>kg<input type="number" step="0.1" style="width: 3em" id="mash_weight0" onchange="updateData()"></label>
+                <label><button id="remove_malt0"  onclick="removeElement()">-</button></label>
             </div>
         </div>
-        <p>Perdite:<input type="number" style="width: 5em" id="mash_mash_loss"> l</p>
+        <div><button id="add_malt" onclick="addElement()">+</button></div>
+        <label>Perdite:<input type="number" step="0.1" style="width: 5em" id="mash_mash_loss" onchange="updateData()"> l</label>
 
-        <button id="mash_save" onclick="saveMash()">Save</button>
+        <!--<button id="mash_save" onclick="saveMash()">Save</button>-->
     </div>
 
 
@@ -73,22 +77,24 @@
         <button id="close_boil" class="close_icon" onclick="hideData()" ><img src="symbols/icon/delete-black.png" height="20px"></button>
     </h3>
     <div class="data" id="data_boil">
-        <p>Durata:<input type="number" style="width: 3em" id="boil_time"> min</p>
-        <p>Whirpool:<input type="number" style="width: 3em" id="boil_whirpool"> min</p>
+        <p>Durata:<input type="number" step="0.1" style="width: 3em" id="boil_time" onchange="updateData()"> min</p>
+        <p>Whirpool:<input type="number" step="0.1" style="width: 3em" id="boil_whirpool" onchange="updateData()"> min</p>
         <div>
             <p>Luppoli</p>
             <div id="hop0">
-                <select name="hop0" id="boil_hop0"/>
-                <p><input type="number" style="width: 3em" id="boil_aa0"> AA%
-                    <input type="number" style="width: 3em" id="boil_time0"> min
-                    <input type="number" style="width: 3em" id="boil_weight0"> g</p>
+                <select name="hop0" id="boil_hop0" onchange="setOptionParams()"/>
+                <p><input type="number" step="0.1" style="width: 3em" id="boil_aa0" onchange="updateData()"> AA%
+                    <input type="number" step="0.1" style="width: 3em" id="boil_time0" onchange="updateData()"> min
+                    <input type="number" step="0.1" style="width: 3em" id="boil_weight0" onchange="updateData()"> g</p>
             </div>
-        </div>
-        <p>Zucchero:<input type="number" style="width: 2em" id="boil_sugar"> kg</p>
-        <p>Acqua:<input type="number" style="width: 3em" id="boil_water"> l</p>
-        <p>Perdite:<input type="number" style="width: 3em" id="boil_boil_loss"> l</p>
 
-        <button id="boil_save" onclick="saveBoil()">Save</button>
+            <div><button id="add_hop" onclick="addElement()">+</button></div>
+        </div>
+        <p>Zucchero:<input type="number" step="0.1" style="width: 2em" id="boil_sugar" onchange="updateData()"> kg</p>
+        <p>Acqua:<input type="number" step="0.1" style="width: 3em" id="boil_water" onchange="updateData()"> l</p>
+        <p>Perdite:<input type="number" step="0.1" style="width: 3em" id="boil_boil_loss" onchange="updateData()"> l</p>
+
+        <!--<button id="boil_save" onclick="saveBoil()">Save</button>-->
     </div>
 
 
@@ -106,17 +112,19 @@
         <div>
             <p>Lieviti</p>
             <div id="yeast0">
-                <p>Temperatura:<input type="number" style="width: 3em" id="ferment_temp"> °C
-                    <select name="yeast0" id="ferment_yeast0"/>
-                    <input type="number" style="width: 3em" id="ferment_aa0"> AA%</p>
+                <p>Temperatura:<input type="number" step="0.1" style="width: 3em" id="ferment_temp" onchange="updateData()"> °C
+                    <select name="yeast0" step="0.1" id="ferment_yeast0"/>
+                    <input type="number" step="0.1" style="width: 3em" id="ferment_aa0" onchange="updateData()"> AA%</p>
             </div>
+
+            <div><button id="add_yeast" onclick="addElement()">+</button></div>
         </div>
-        <p>Zucchero:<input type="number" style="width: 3em" id="ferment_sugar">kg</p>
-        <p>Acqua:<input type="number" style="width: 3em" id="ferment_water"> l</p>
-        <p>Perdite:<input type="number" style="width: 3em"> l</p>
+        <p>Zucchero:<input type="number" step="0.1" style="width: 3em" id="ferment_sugar" onchange="updateData()">kg</p>
+        <p>Acqua:<input type="number" step="0.1" style="width: 3em" id="ferment_water" onchange="updateData()"> l</p>
+        <p>Perdite:<input type="number" step="0.1" style="width: 3em" onchange="updateData()"> l</p>
         </p>
 
-        <button id="ferment_save" onclick="saveFerment()">Save</button>
+        <!--<button id="ferment_save" onclick="saveFerment()">Save</button>-->
     </div>
 
 
@@ -129,10 +137,10 @@
         <button id="close_bottle" class="close_icon" onclick="hideData()" ><img src="symbols/icon/delete-black.png" height="20px"></button>
     </h3>
     <div class="data" id="data_bottle">
-        <p>Saccarosio:<input type="number" style="width: 5em" id="bottle_sucrose">kg</p>
-        <p>Perdite:<input type="number" style="width: 5em">litri</p>
+        <p>Saccarosio:<input type="number" step="0.1" style="width: 5em" id="bottle_sucrose" onchange="updateData()">kg</p>
+        <p>Perdite:<input type="number" step="0.1" style="width: 5em" onchange="updateData()">litri</p>
 
-        <button id="bottle_save" onclick="saveBottle()">Save</button>
+        <!--<button id="bottle_save" onclick="saveBottle()">Save</button>-->
     </div>
 
 
