@@ -131,7 +131,8 @@ function setObjectSelected(id){
     objSelected.type = obj.getAttribute("type");
     objSelected.position = parseInt(obj.getAttribute("position"));
     objSelected.about = obj.getAttribute("about");
-
+    if(!(objSelected.about === "Mash water") && objSelected.type === "flow" )
+        objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2].name;
     return objSelected;
 }
 
@@ -147,6 +148,7 @@ function appear() {
         obj_flow.appendChild(showFlowButton(targetObj));
         let shifter = document.getElementsByClassName("grid-item-row" + targetObj.row);
         if (parseInt(targetObj.position) === parseInt(shifter[shifter.length - 1].getAttribute("position"))){
+            obj_activity.style.display = "inline";
             obj_activity.appendChild(showActivityButton(targetObj));
             let i = 1;
         }
@@ -158,8 +160,12 @@ function appear() {
 
 }
 
-function disappear(){
-    let id = event.currentTarget.id;
+function disappear(objId){
+    let id;
+    if(objId === undefined)
+        id = event.currentTarget.id;
+    else
+        id = objId;
     let obj_flow = document.getElementById("flow-buttons-"+id);
     let obj_activity = document.getElementById("activity-buttons-"+id);
     let obj_delete =  document.getElementById("delete-buttons-"+id);
@@ -167,8 +173,11 @@ function disappear(){
     let targetObj = setObjectSelected(id);
     if (targetObj.type === "flow") {
         obj_flow.removeChild(document.getElementById("flow-button"));
-        if (document.getElementById("activity-button") !== null)
+        if (document.getElementById("activity-button") !== null){
             obj_activity.removeChild(document.getElementById("activity-button"));
+            obj_activity.style.display = "none";
+        }
+
     }
     else if (targetObj.type === "activity") {
         obj_delete.removeChild(document.getElementById("delete-button"));
@@ -181,35 +190,39 @@ function disappear(){
 function showFlowButton(obj){
     let item = document.createElement("div");
     item.setAttribute("id", "flow-button");
-    let buttonSplit = document.createElement("button");
+
+
+    if(!obj.about.includes("Split")){
+
+        let buttonSplit = document.createElement("button");
+        let splitImg = document.createElement("img");
+        splitImg.setAttribute("src", "symbols/icon/split-black.png");
+        splitImg.setAttribute("class", "icon");
+        buttonSplit.appendChild(splitImg);
+        buttonSplit.setAttribute("class", "flow-button");
+        buttonSplit.onclick = function () { splitActivities(obj); };
+        buttonSplit.onmouseover = function (){
+            splitImg.style.height = "35px";
+            splitImg.style.width = "35px";
+
+        };
+        buttonSplit.onmouseleave = function (){
+            splitImg.style.height = "30px";
+            splitImg.style.width = "30px";
+
+        };
+
+        item.appendChild(buttonSplit);
+    }
+
     let buttonMerge = document.createElement("button");
-    let buttonList = document.createElement("button");
-    let splitImg = document.createElement("img");
     let mergeImg = document.createElement("img");
-    let listImg = document.createElement("img");
-    splitImg.setAttribute("src", "symbols/icon/split-black.png");
-    splitImg.setAttribute("class", "icon");
     mergeImg.setAttribute("src", "symbols/icon/merge-black.png");
     mergeImg.setAttribute("class", "icon");
-    listImg.setAttribute("src", "symbols/icon/list-black.png");
-    listImg.setAttribute("class", "icon");
-    buttonSplit.appendChild(splitImg);
     buttonMerge.appendChild(mergeImg);
-    buttonList.appendChild(listImg);
-    buttonSplit.setAttribute("class", "flow-button");
-    buttonSplit.onclick = function () { splitActivities(obj); };
-    buttonSplit.onmouseover = function (){
-        splitImg.style.height = "35px";
-        splitImg.style.width = "35px";
-
-    };
-    buttonSplit.onmouseleave = function (){
-        splitImg.style.height = "30px";
-        splitImg.style.width = "30px";
-
-    };
     buttonMerge.setAttribute("class", "flow-button");
     buttonMerge.onclick = function () {
+
         flowToMerge = document.getElementById(obj.id);
         selectFlowsToMerge(obj.column, "#DC143C");
     };
@@ -224,20 +237,23 @@ function showFlowButton(obj){
 
     };
 
+
+    let buttonList = document.createElement("button");
+    let listImg = document.createElement("img");
+    listImg.setAttribute("src", "symbols/icon/list-black.png");
+    listImg.setAttribute("class", "icon");
+    buttonList.appendChild(listImg);
     buttonList.setAttribute("class", "flow-button");
     buttonList.onclick = function () { showParams(obj); };
     buttonList.onmouseover = function (){
         listImg.style.height = "35px";
         listImg.style.width = "35px";
-
     };
     buttonList.onmouseleave = function (){
         listImg.style.height = "30px";
         listImg.style.width = "30px";
-
     };
 
-    item.appendChild(buttonSplit);
     item.appendChild(buttonMerge);
     item.appendChild(buttonList);
     return item;
@@ -248,8 +264,13 @@ function showActivityButton(obj){
     let item = document.createElement("div");
     item.setAttribute("id", "activity-button");
     item.style.display = "inline-block";
+    let type;
+    if(obj.about === "Start flow" || obj.about === "Split flow")
+         type = obj.previousFlowAbout;
+    else
+        type = obj.about;
 
-    switch(obj.about){ // a seconda dell'attivit‡ si avranno pi˘ o meno scelte
+    switch(type){ // a seconda dell'attivit‡ si avranno pi˘ o meno scelte
         case flow.MASH_WATER:
         case flow.POST_MASH_WORT: {
             item.appendChild(createActivityButton(obj, activity.MASHING));
@@ -314,6 +335,25 @@ function showDeleteButton(obj){
 
     };
     item.appendChild(buttonDelete);
+
+    let buttonList = document.createElement("button");
+    let listImg = document.createElement("img");
+    listImg.setAttribute("src", "symbols/icon/list-black.png");
+    listImg.setAttribute("class", "icon");
+    buttonList.appendChild(listImg);
+    buttonList.setAttribute("class", "flow-button");
+    buttonList.onclick = function () {
+        showWrapper(obj); };
+    buttonList.onmouseover = function (){
+        listImg.style.height = "35px";
+        listImg.style.width = "35px";
+    };
+    buttonList.onmouseleave = function (){
+        listImg.style.height = "30px";
+        listImg.style.width = "30px";
+    };
+
+    item.appendChild(buttonList);
     return item;
 }
 
@@ -323,22 +363,25 @@ function showParams(obj){
     if(areParamsVisible == "false") {
         paramsSpace.style.display = "inline";
         updateParams(obj);
-        /*
-        document.getElementById("vol-"+obj.id).innerText = "Volume: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.vol * 1000) / 1000;
-        document.getElementById("og-"+obj.id).innerText = "Densità originale: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.og * 1000) / 1000;
-        document.getElementById("fg-"+obj.id).innerText = "Densità finale: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.fg * 1000) / 1000;
-        document.getElementById("abv-"+obj.id).innerText = "Alcol (vol): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.abv * 1000) / 1000;
-        document.getElementById("ebc-"+obj.id).innerText = "Colore (EBC): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ebc * 1000) / 1000;
-        document.getElementById("ibu-"+obj.id).innerText = "Amarezza (IBU): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ibu * 1000) / 1000;
-        document.getElementById("co2-"+obj.id).innerText = "Carbonazione (g/l): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.co2 * 1000) / 1000;
-        */
         paramsSpace.setAttribute("about", "true");
-        //areParamsVisible=true;
     }else{
         paramsSpace.style.display = "none";
         paramsSpace.setAttribute("about", "false");
-        //areParamsVisible=false;
     }
+}
+
+function showWrapper(obj){
+    let wrapper = document.getElementById("wrapper-" + obj.id);
+    let isWrapperVisible = wrapper.getAttribute("about");
+    if(isWrapperVisible == "false") {
+        wrapper.style.display = "inline";
+        showDataInActivity(obj.about, obj.position, obj.row, obj.id);
+        wrapper.setAttribute("about", "true");
+    }else{
+        wrapper.style.display = "none";
+        wrapper.setAttribute("about", "false");
+    }
+    update();
 }
 
 function updateParams(obj){
@@ -352,14 +395,147 @@ function updateParams(obj){
 
 }
 
+function showDataInActivity(type, position, row, id){
+    let recipe = recipes[row].flow;
+
+    switch(type){
+        case activity.MASHING:{
+            let params;
+            if(recipe.process[position].name === "Split"){
+                params = recipe.process[position+2].params;
+            } else{
+
+                params = recipe.process[position].params;
+            }
+            document.getElementById(id+"_mash_water").value = params.mash_water;
+            document.getElementById(id+"_sparge_water").value = params.sparge_water;
+            document.getElementById(id+"_efficiency").value = params.mash_efficiency_weight;
+            document.getElementById(id+"_mash_loss").value = params.mash_loss;
+
+            let maltslist = document.getElementById(id+"_"+type+"_malt0");
+            for(let i=0; i<malts.length; i++){
+                var opt = document.createElement("option");
+                opt.innerHTML = malts[i].name;
+                opt.value = malts[i].name;
+                maltslist.appendChild(opt);
+            }
+            let selectedMaltName = maltslist.options[maltslist.selectedIndex].value;
+            let selectedMalt;
+
+            for(let i=0; i<malts.length;i++){
+                if(malts[i].name == selectedMaltName){
+                    selectedMalt = malts[i];
+                }
+            }
+            document.getElementById(id+"_malt_EBC0").value = selectedMalt.ebc;
+            document.getElementById(id+"_malt_weight0").value = selectedMalt.weight;
+            break;
+        }
+        case activity.BOILING:{
+            let params;
+            if(recipe.process[position].name === "Split"){
+                params = recipe.process[position+2].params;
+            } else{
+
+                params = recipe.process[position].params;
+            }
+
+            document.getElementById(id+"_time").value = params.time;
+            document.getElementById(id+"_whirpool").value = params.whirlpool;
+            document.getElementById(id+"_sugar").value = params.sugar_addition.qty;
+            document.getElementById(id+"_water").value = params.water_addition;
+            document.getElementById(id+"_boil_loss").value = params.boil_loss;
+            let hopslist = document.getElementById(id+"_"+type+"_hop0");
+            for(let i=0; i<hops.length; i++){
+                var opt = document.createElement("option");
+                opt.innerHTML = hops[i].name;
+                opt.value = hops[i].name;
+                hopslist.appendChild(opt);
+            }
+            let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
+            let selectedHop;
+
+            for(let i=0; i<hops.length;i++){
+                if(hops[i].name == selectedHopName){
+                    selectedHop = hops[i];
+                }
+            }
+            document.getElementById(id+"_hop_aa0").value = selectedHop.aa;
+            document.getElementById(id+"_hop_weight0").value = selectedHop.weight;
+            document.getElementById(id+"_hop_time0").value = selectedHop.time;
+            break;
+        }
+        case activity.FERMENTING:{
+            let params;
+            if(recipe.process[position].name === "Split"){
+                params = recipe.process[position+2].params;
+            } else{
+
+                params = recipe.process[position].params;
+            }
+
+            let yeastslist = document.getElementById(id +"_"+type+"_yeast0");
+            for(let i=0; i<yeasts.length; i++){
+                var opt = document.createElement("option");
+                opt.innerHTML = yeasts[i].name;
+                opt.value = yeasts[i].name;
+                yeastslist.appendChild(opt);
+            }
+            let selectedYeastName = yeastslist.options[yeastslist.selectedIndex].value;
+            let selectedYeast;
+
+            for(let i=0; i<yeasts.length;i++){
+                if(yeasts[i].name == selectedYeastName){
+                    selectedYeast = yeasts[i];
+                }
+            }
+
+            let hopslist = document.getElementById(id+"_"+type+"_hop0");
+            for(let i=0; i<hops.length; i++){
+                var opt = document.createElement("option");
+                opt.innerHTML = hops[i].name;
+                opt.value = hops[i].name;
+                hopslist.appendChild(opt);
+            }
+            let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
+            let selectedHop;
+
+            for(let i=0; i<hops.length;i++){
+                if(hops[i].name == selectedHopName){
+                    selectedHop = hops[i];
+                }
+            }
+            document.getElementById(id+"_yeast_aa0").value = selectedYeast.attenuation;
+            document.getElementById(id+"_hop_aa0").value = selectedHop.aa;
+            document.getElementById(id+"_hop_weight0").value = selectedHop.weight;
+            document.getElementById(id+"_hop_time0").value = selectedHop.time;
+            document.getElementById(id+"_temp").value = params.temperature;
+            document.getElementById(id+"_water").value = params.water_addition;
+            document.getElementById(id+"_sugar").value = params.sugar_addition.qty;
+            document.getElementById(id+"_boil_loss").value = params.fermentation_loss;
+            break;
+        }
+        case activity.BOTTLING:{
+            let params;
+            if(recipe.process[position].name === "Split"){
+                params = recipe.process[position+2].params;
+            } else{
+
+                params = recipe.process[position].params;
+            }
+            break;
+        }
+    }
+}
+
 function showData(ident, position, row){
     let wrapper = document.getElementById("wrapper_"+ident);
     if(position == null && row == null ){
         row = window.getComputedStyle(event.currentTarget).getPropertyValue('grid-row-start');
         position = event.currentTarget.getAttribute("position");
     }
-    wrapper.setAttribute("ref-pos", position);
-    wrapper.setAttribute("ref-row", row);
+    //wrapper.setAttribute("ref-pos", position);
+    //wrapper.setAttribute("ref-row", row);
     var visible = wrapper.getAttribute("about");
     if(visible === "false") {
         let data = document.getElementById("data_"+ident);
@@ -505,30 +681,30 @@ function addActivity(obj, activityType){
     switch(activityType){
         case activity.MASHING: {
             recipe.add_mash();
-            showData(activity.MASHING, obj.position+1, obj.row);
+            //showData(activity.MASHING, obj.position+1, obj.row);
             flowType = flow.POST_MASH_WORT;
-            path = "symbols/tubing/mash.png";
+            path = "symbols/tubingsmall/mash.png";
             break;
         }
         case activity.BOILING: {
             recipe.add_boil();
-            showData(activity.BOILING, obj.position+1, obj.row);
+            //showData(activity.BOILING, obj.position+1, obj.row);
             flowType = flow.POST_BOIL_WORT;
-            path = "symbols/tubing/boil.png";
+            path = "symbols/tubingsmall/boil.png";
             break;
         }
         case activity.FERMENTING: {
             recipe.add_ferment();
-            showData(activity.FERMENTING, obj.position+1, obj.row);
+            //showData(activity.FERMENTING, obj.position+1, obj.row);
             flowType = flow.FLAT_BEER;
-            path = "symbols/tubing/ferment.png";
+            path = "symbols/tubingsmall/ferment.png";
             break;
         }
         case activity.BOTTLING:{
             recipe.add_bottle();
-            showData(activity.BOTTLING, obj.position+1, obj.row);
+            //showData(activity.BOTTLING, obj.position+1, obj.row);
             flowType = flow.CARBONATED_BEER;
-            path = "symbols/tubing/bottle.png";
+            path = "symbols/tubingsmall/bottle.png";
             break;
         }
     }
@@ -541,10 +717,11 @@ function addActivity(obj, activityType){
     let newActivity = createActivity(obj.row, obj.column + 1, path,  activityType, obj.position);
     //crea un nuovo stato con id incrementato
     obj.position++;
-    let newState = createFlow(obj.row, obj.column + 2, "symbols/tubing/simple.png", flowType, obj.position);
+    let newState = createFlow(obj.row, obj.column + 2, "symbols/tubingsmall/simple.png", flowType, obj.position);
 
     container.appendChild(newActivity);
     container.appendChild(newState);
+    disappear(obj.id);
 }
 
 //unisce due attivit‡
@@ -552,6 +729,7 @@ function selectFlowsToMerge(column, color){
     let container = document.getElementById("grid-container");
     let targetFlows = [];
     let style;
+    let complete = true;
 
     for(let i=1; i<recipes.length; i++ ){
         let elementsInARow = container.getElementsByClassName("grid-item-row"+i);
@@ -564,9 +742,16 @@ function selectFlowsToMerge(column, color){
         }
     }
 
-    isToMerged = true;
     for(let i=0; i<targetFlows.length; i++){
-        targetFlows[i].style.backgroundColor = color;
+        if(targetFlows[i].getAttribute("about").includes("Split") || targetFlows.length == 1)
+            complete = false;
+    }
+
+    if(complete) {
+        isToMerged = true;
+        for (let i = 0; i < targetFlows.length; i++) {
+            targetFlows[i].style.backgroundColor = color;
+        }
     }
 
 }
@@ -603,7 +788,7 @@ function mergeActivities(){
     if(isToMerged===true && flowToMerge !== selectedFlow){
         let container = document.getElementById("grid-container");
         let styleFlowToMerge = window.getComputedStyle(flowToMerge);
-        let newActivity = createActivity(row, parseInt(column) + 1, "symbols/tubing/"+activityType+".png", parseInt(selectedFlow.getAttribute("position"))+1);
+        let newActivity = createActivity(row, parseInt(column) + 1, "symbols/tubingsmall/"+activityType+".png", parseInt(selectedFlow.getAttribute("position"))+1);
 
         let shifter = document.getElementsByClassName('grid-item-row'+row);
         for(let i = 0; i< shifter.length; i++){
@@ -615,15 +800,18 @@ function mergeActivities(){
         }
 
         if(parseInt(row) < styleFlowToMerge.getPropertyValue('grid-row-start')){
-            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerup.png";
-            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubing/singleintersectiondown.png";
+            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerup.png";
+            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectiondown.png";
         }else{
-            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerup.png";
-            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubing/singleintersectionup.png";
+            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerdown.png";
+            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectionup.png";
         }
-        let newFlow = createFlow(row, parseInt(column) + 2, "symbols/tubing/simple.png",
+        let about = selectedFlow.getAttribute("about");
+        flowToMerge.setAttribute("about", about + "_merged");
+        let newFlow = createFlow(row, parseInt(column) + 2, "symbols/tubingsmall/simple.png",
             selectedFlow.getAttribute("about"), parseInt(selectedFlow.getAttribute("position"))+2);
         recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.add_merge(selectedFlow.getAttribute("position"), recipes[row].flow, selectedFlow.getAttribute("position"));
+        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.brew();
         container.appendChild(newActivity);
         container.appendChild(newFlow);
 
@@ -722,21 +910,21 @@ function splitActivities(obj){
 
     let img = document.getElementById("imgS" + obj.id.substring(2, 3));
     if(img.src.includes("simple") || img.src.includes("begin"))
-        img.src = "symbols/tubing/singleintersectiondown.png";
+        img.src = "symbols/tubingsmall/singleintersectiondown.png";
     else
-        img.src = "symbols/tubing/doublesplit2.png";
-    img.style.height = "200px";
+        img.src = "symbols/tubingsmall/doublesplit2.png";
+    img.style.height = "280px";
 
-    let splitState = createFlow(newRow, obj.column, "symbols/tubing/rightcornerup2.png", obj.about, obj.position+2);
+    let splitFlow = createFlow(newRow, obj.column, "symbols/tubingsmall/rightcornerup2.png", "Start flow", obj.position+2);
 
 
     for (let i = 0; i<splitStack.length; i++){
-        if(splitStack[i].destRecipeId > newRow && splitStack[i].position < obj.position+2){
+        if(splitStack[i].destRecipeId > newRow && splitStack[i].position <= obj.position+2){
             let shifter = document.getElementsByClassName("grid-item-row"+obj.row);
             for(let j=0; j<shifter.length; j++){
                 if(parseInt(shifter[j].getAttribute("position")) === splitStack[i].position){
                     let column = window.getComputedStyle(shifter[j]).getPropertyValue('grid-column-start');
-                    let connection = createFlow(newRow, column ,"symbols/tubing/vertical.png", "connection", -1 );
+                    let connection = createFlow(newRow, column ,"symbols/tubingsmall/vertical.png", "connection", -1 );
                     container.appendChild(connection);
                 }
             }
@@ -744,7 +932,21 @@ function splitActivities(obj){
     }
 
 
-    container.appendChild(splitState);
+    container.appendChild(splitFlow);
+
+    let sourceFlow = document.getElementById(obj.id);
+    let about = sourceFlow.getAttribute("about");
+
+    if(!(sourceFlow.getAttribute("about") === "Start flow"))
+        splitFlow.setAttribute("source", obj.id);
+
+    else
+        splitFlow.setAttribute("source", sourceFlow.getAttribute("source"));
+
+    sourceFlow.setAttribute("position",obj.position +2);
+    sourceFlow.setAttribute("about", recipes[obj.row].flow.process[obj.position +2].name);
+    disappear(obj.id);
+
 
 }
 
@@ -756,6 +958,7 @@ function createActivity(row, column, path, about, pos){
     let elem_container;
     let img;
     let delete_buttons;
+    let wrapper;
 
     grid_item = document.createElement("div");
     grid_item.setAttribute("class", "grid-item-row"+row);
@@ -783,7 +986,7 @@ function createActivity(row, column, path, about, pos){
     img.setAttribute("src", path);
     img.setAttribute("id", "imgS" +lastCreatedElement);
     img.setAttribute("class", "img");
-    img.setAttribute("height", "200px");
+    img.setAttribute("height", "280px");
 
     img.style.marginLeft = "-1px";
     img.style.marginRight = "-1px";
@@ -791,6 +994,10 @@ function createActivity(row, column, path, about, pos){
     img.style.marginTop = "-1px";
 
     elem_container.appendChild(img);
+
+    wrapper = createWrapper(about, pos, row, "el"+lastCreatedElement);
+
+    elem_container.appendChild(wrapper);
 
     grid_item.appendChild(elem_container);
 
@@ -818,7 +1025,7 @@ function createFlow(row, column, path, about,  pos){
     grid_item.onmouseleave = function () { disappear();};
     grid_item.onclick = function (){ mergeActivities();};
 
-    grid_item.style.gridColumn = column +"/ "+column;
+    grid_item.style.gridColumn = column +"/ "+ column;
     grid_item.style.marginLeft = "0px";
     grid_item.style.marginRight = "0px";
 
@@ -835,7 +1042,7 @@ function createFlow(row, column, path, about,  pos){
     img.setAttribute("src", path);
     img.setAttribute("id", "imgS" +lastCreatedElement);
     img.setAttribute("class", "img");
-    img.setAttribute("height", "200px");
+    img.setAttribute("height", "280px");
 
     img.style.marginLeft = "-1px";
     img.style.marginRight = "-1px";
@@ -868,7 +1075,8 @@ function createFlow(row, column, path, about,  pos){
         split_amount.style.position = "absolute";
         split_amount.style.zIndex = "+4";
         split_amount.style.width = "3em";
-        split_amount.style.right = "5px";
+        split_amount.style.right = "8px";
+        split_amount.style.top ="30px";
         split_amount.onchange = function () {
             setSplitAmount();
         };
@@ -884,9 +1092,12 @@ function createFlow(row, column, path, about,  pos){
 function setSplitAmount(){
     let el = event.currentTarget;
     let gridItem = el.parentElement.parentElement;
-    let targetObj = setObjectSelected(gridItem.getAttribute("id"));
-    recipe
+    let source_element = document.getElementById(gridItem.getAttribute("source"));
+    let targetObj = setObjectSelected(source_element.getAttribute("id"));
+    recipes[targetObj.row].flow.process[targetObj.position-1].params.vol = el.value;
 
+    recipes[targetObj.row].flow.brew();
+    update();
 }
 
 function setParams(item, id){
@@ -900,6 +1111,7 @@ function setParams(item, id){
 }
 
 function update(){
+    recipes[1].flow.brew();
     let gridcontainer = document.getElementById("grid-container");
     let items = gridcontainer.children;
 
@@ -915,31 +1127,31 @@ function update(){
 
 }
 
-function saveMash(){
-    let wrapper = document.getElementById("wrapper_mash");
-    let id = wrapper.getAttribute("ref-row");
-    let position = wrapper.getAttribute("ref-pos");
-    let recipe = recipes[id].flow;
+function saveMash(idElement){
+    let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
+    let position = document.getElementById(idElement).getAttribute("position");
+
+    let recipe = recipes[row].flow;
     let params = recipe.process[position].params;
-    params.mash_water = parseFloat(document.getElementById("mash_mash_water").value);
-    params.sparge_water = parseFloat(document.getElementById("mash_sparge_water").value);
-    params.mash_efficiency_weight = parseFloat(document.getElementById("mash_efficiency").value);
-    params.mash_loss = parseFloat(document.getElementById("mash_mash_loss").value);
+    params.mash_water = parseFloat(document.getElementById(idElement+"_mash_water").value);
+    params.sparge_water = parseFloat(document.getElementById(idElement+"_sparge_water").value);
+    params.mash_efficiency_weight = parseFloat(document.getElementById(idElement+"_efficiency").value);
+    params.mash_loss = parseFloat(document.getElementById(idElement+"_mash_loss").value);
 
     for(let n=0; n<=lastMalt; n++){
-        let maltslist = document.getElementById("mash_malt"+n);
+        let maltslist = document.getElementById(idElement+"_mash_malt"+n);
         let selectedMaltName = maltslist.options[maltslist.selectedIndex].value;
 
         for(let i=0; i<malts.length;i++){
             if(malts[i].name == selectedMaltName){
                 params.malts[n] = malts[i];
-                params.malts[i].ebc = parseFloat(document.getElementById("mash_EBC"+n).value);
-                params.malts[i].weight = parseFloat(document.getElementById("mash_weight"+n).value);
+                params.malts[i].ebc = parseFloat(document.getElementById(idElement+"_malt_EBC"+n).value);
+                params.malts[i].weight = parseFloat(document.getElementById(idElement+"_malt_weight"+n).value);
             }
         }
     }
-    if(id=1){
-        recipes[id].flow.process[0].plan.vol = parseFloat(document.getElementById("mash_mash_water").value);
+    if(row=1){
+        recipes[row].flow.process[0].plan.vol = parseFloat(document.getElementById(idElement+"_mash_water").value);
     }
 
 
@@ -948,55 +1160,72 @@ function saveMash(){
 
 }
 
-function saveBoil(){
-    let wrapper = document.getElementById("wrapper_boil");
-    let id = wrapper.getAttribute("ref-row");
-    let position = wrapper.getAttribute("ref-pos");
-    let recipe = recipes[id].flow;
+function saveBoil(idElement){
+    let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
+    let position = document.getElementById(idElement).getAttribute("position");
+
+
+    let recipe = recipes[row].flow;
     let params = recipe.process[position].params;
 
-    params.time = parseFloat(document.getElementById("boil_time").value);
-    params.whirlpool = parseFloat(document.getElementById("boil_whirpool").value);
-    params.sugar_addition = parseFloat(document.getElementById("boil_sugar").value);
-    params.water_addition= parseFloat(document.getElementById("boil_water").value);
-    params.boil_loss = parseFloat(document.getElementById("boil_boil_loss").value);
+    params.time = parseFloat(document.getElementById(idElement+"_time").value);
+    params.whirlpool = parseFloat(document.getElementById(idElement+"_whirpool").value);
+    params.sugar_addition = parseFloat(document.getElementById(idElement+"_sugar").value);
+    params.water_addition= parseFloat(document.getElementById(idElement+"_water").value);
+    params.boil_loss = parseFloat(document.getElementById(idElement+"_boil_loss").value);
 
-    let hopslist = document.getElementById("boil_hop0");
-    let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
+    for(let n=0; n<=lastHop; n++) {
+        let hopslist = document.getElementById(idElement + "_boil_hop"+n);
+        let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
 
-    for(let i=0; i<hops.length;i++){
-        if(hops[i].name == selectedHopName){
-            params.hops[0] = hops[i];
-            params.hops[i].aa = parseFloat(document.getElementById("boil_aa0").value);
-            params.hops[i].weight = parseFloat(document.getElementById("boil_weight0").value);
-            params.hops[i].time = parseFloat(document.getElementById("boil_time0").value);
+        for (let i = 0; i < hops.length; i++) {
+            if (hops[i].name == selectedHopName) {
+                params.hops[n] = hops[i];
+                params.hops[i].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
+                params.hops[i].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
+                params.hops[i].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
+            }
         }
     }
 
-
     recipe.brew();
     update();
 
 }
 
-function saveFerment(){
-    let wrapper = document.getElementById("wrapper_ferment");
-    let id = wrapper.getAttribute("ref-row");
-    let position = wrapper.getAttribute("ref-pos");
-    let recipe = recipes[id].flow;
+function saveFerment(idElement){
+    let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
+    let position = document.getElementById(idElement).getAttribute("position");
+
+
+    let recipe = recipes[row].flow;
     let params = recipe.process[position].params;
 
-    params.temperature = parseFloat(document.getElementById("ferment_temp").value);
-    params.water_addition = parseFloat(document.getElementById("ferment_water").value);
-    params.sugar_addition.qty = parseFloat(document.getElementById("ferment_sugar").value);
+    params.temperature = parseFloat(document.getElementById(idElement+"_temp").value);
+    params.water_addition = parseFloat(document.getElementById(idElement+"_water").value);
+    params.sugar_addition.qty = parseFloat(document.getElementById(idElement+"_sugar").value);
 
-    let yeastslist = document.getElementById("ferment_yeast0");
+    let yeastslist = document.getElementById(idElement+"_ferment_yeast0");
     let selectedYeastName = yeastslist.options[yeastslist.selectedIndex].value;
 
     for(let i=0; i<yeasts.length;i++){
         if(yeasts[i].name == selectedYeastName){
             params.yeast[0] = yeasts[i];
-            params.yeast[i].attenuation = parseFloat(document.getElementById("ferment_aa0").value);
+            params.yeast[i].attenuation = parseFloat(document.getElementById(idElement+"_yeast_aa0").value);
+        }
+    }
+
+    for(let n=0; n<=lastHop; n++) {
+        let hopslist = document.getElementById(idElement + "_ferment_hop"+n);
+        let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
+
+        for (let i = 0; i < hops.length; i++) {
+            if (hops[i].name == selectedHopName) {
+                params.hops[n] = hops[i];
+                params.hops[i].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
+                params.hops[i].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
+                params.hops[i].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
+            }
         }
     }
 
@@ -1011,41 +1240,39 @@ function saveBottle(){
 function updateData(){
 
     let el = event.currentTarget;
-    let parent = el.parentElement.parentElement;
-    let wrapper;
+    let id = el.getAttribute("id").substring(0,3);
+    let wrapper = document.getElementById("wrapper-"+id);
+    let type = document.getElementById(id).getAttribute("about");
+    let row = parseInt(window.getComputedStyle(document.getElementById(id)).getPropertyValue('grid-row-start'));
+    let position = document.getElementById(id).getAttribute("position");
 
-    while(!parent.getAttribute("id").includes("wrapper")){
-        parent = parent.parentElement;
-
-    }
-    wrapper = parent;
-    let id = wrapper.getAttribute("ref-row");
-    let position = wrapper.getAttribute("ref-pos");
-    let recipe = recipes[id].flow;
+    //let id = wrapper.getAttribute("ref-row");
+    //let position = wrapper.getAttribute("ref-pos");
+    let recipe = recipes[row].flow;
     let params = recipe.process[position].params;
 
-    switch(wrapper.getAttribute("id")){
-        case "wrapper_mash":{
-            saveMash();
+    switch(type){
+        case activity.MASHING:{
+            saveMash(id);
             break;
         }
-        case "wrapper_boil":{
-            saveBoil();
+        case activity.BOILING:{
+            saveBoil(id);
             break;
         }
-        case "wrapper_ferment":{
-            saveFerment();
+        case activity.FERMENTING:{
+            saveFerment(id);
             break;
         }
-        case "wrapper_bottle":{
-            saveBottle();
+        case activity.BOTTLING:{
+            saveBottle(id);
             break;
         }
     }
 }
 
-function fillMaltsList(id){
-    let maltslist = document.getElementById("mash_malt"+id);
+function fillMaltsList(idMalt, idEl){
+    let maltslist = document.getElementById(idEl+"_mash_malt"+idMalt);
     for(let i=0; i<malts.length; i++){
         var opt = document.createElement("option");
         opt.innerHTML = malts[i].name;
@@ -1060,8 +1287,28 @@ function fillMaltsList(id){
             selectedMalt = malts[i];
         }
     }
-    document.getElementById("mash_EBC"+id).value = selectedMalt.ebc;
-    document.getElementById("mash_weight"+id).value = selectedMalt.weight;
+    document.getElementById(idEl+"_EBC"+idMalt).value = selectedMalt.ebc;
+    document.getElementById(idEl+"_weight"+idMalt).value = selectedMalt.weight;
+}
+
+function fillHopsList(idHop, idEl){
+    let hopslist = document.getElementById(idEl+"_boil_hop"+idHop);
+    for(let i=0; i<hops.length; i++){
+        var opt = document.createElement("option");
+        opt.innerHTML = hops[i].name;
+        opt.value = hops[i].name;
+        hopslist.appendChild(opt);
+    }
+    let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
+    let selectedHop;
+
+    for(let i=0; i<malts.length;i++){
+        if(malts[i].name == selectedHopName){
+            selectedHop = malts[i];
+        }
+    }
+    document.getElementById(idEl+"_EBC"+idHop).value = selectedHop.ebc;
+    document.getElementById(idEl+"_weight"+idHop).value = selectedHop.weight;
 }
 
 function setOptionParams(id){
@@ -1096,6 +1343,8 @@ function setOptionParams(id){
         document.getElementById("boil_aa0").value = selectedHop.aa;
         document.getElementById("boil_weight0").value = selectedHop.weight;
         document.getElementById("boil_time0").value = selectedHop.time;
+    } else if(el.getAttribute("id").includes("ferment")){
+        
     }
 
 
@@ -1103,45 +1352,23 @@ function setOptionParams(id){
 
 function addElement() {
     let el = event.currentTarget;
+    let id = el.getAttribute("id").substring(0,3);
     if(el.getAttribute("id").includes("malt")){
-        let maltsDiv = document.getElementById("mash_malts");
+        let maltsDiv = document.getElementById("mash_malts_"+id);
         lastMalt +=1;
         let newMalt = document.createElement("div");
-        newMalt.setAttribute("id", "malt"+lastMalt);
+        newMalt.setAttribute("id", id+"_malt"+lastMalt);
 
         let select = document.createElement("select");
         select.setAttribute("name", "malt"+lastMalt);
-        select.setAttribute("id", "mash_malt"+lastMalt);
+        select.setAttribute("id", id+"_mash_malt"+lastMalt);
         select.onchange= function(){
             setOptionParams(lastMalt);
         };
-        let labelEBC = document.createElement("label");
-        let ebc = document.createElement("input");
-        ebc.setAttribute("type", "number");
-        ebc.setAttribute("step", "0.1");
-        ebc.setAttribute("id", "mash_EBC"+lastMalt);
-        ebc.style.width = "3em";
-        ebc.onchange = function () {
-            updateData();
-        };
-        labelEBC.innerText = " EBC";
-        labelEBC.appendChild(ebc);
-
-        let labelweight = document.createElement("label");
-        let weight = document.createElement("input");
-        weight.setAttribute("type", "number");
-        weight.setAttribute("step", "0.1");
-        weight.setAttribute("id", "mash_weight"+lastMalt);
-        weight.style.width = "3em";
-        weight.onchange = function () {
-            updateData();
-        };
-        labelweight.innerText = " kg";
-        labelweight.appendChild(weight);
 
         let labelButton = document.createElement("label");
         let buttonDelete = document.createElement("button");
-        buttonDelete.setAttribute("id", "remove_malt"+lastMalt);
+        buttonDelete.setAttribute("id", id+"_remove_malt"+lastMalt);
         buttonDelete.innerText = "-";
         buttonDelete.onclick = function (){
             removeElement();
@@ -1151,21 +1378,298 @@ function addElement() {
 
 
         newMalt.appendChild(select);
-        newMalt.appendChild(labelEBC);
-        newMalt.appendChild(labelweight);
+        newMalt.appendChild(createSelectLabel(id, "EBC", "EBC", lastMalt));
+        newMalt.appendChild(createSelectLabel(id, "weight", "kg", lastMalt));
         newMalt.appendChild(labelButton);
 
         maltsDiv.appendChild(newMalt);
 
-        fillMaltsList(lastMalt);
+        fillMaltsList(lastMalt, id);
+    }
+    else if(el.getAttribute("id").includes("hop")){
+        let hopsDiv = document.getElementById("boil_hops_"+id);
+        lastHop +=1;
+        let newHop = document.createElement("div");
+        newHop.setAttribute("id", id+"_hop"+lastHop);
+
+        let select = document.createElement("select");
+        select.setAttribute("name", "hop"+lastHop);
+        select.setAttribute("id", id+"_boil_hop"+lastHop);
+        select.onchange= function(){
+            setOptionParams(lastHop);
+        };
+
+        let labelButton = document.createElement("label");
+        let buttonDelete = document.createElement("button");
+        buttonDelete.setAttribute("id", id+"_remove_hop"+lastHop);
+        buttonDelete.innerText = "-";
+        buttonDelete.onclick = function (){
+            removeElement();
+        };
+
+        labelButton.appendChild(buttonDelete);
+
+
+        newHop.appendChild(select);
+        newHop.appendChild(createSelectLabel(id, "aa", "AA%", lastHop));
+        newHop.appendChild(createSelectLabel(id, "time", "min", lastHop));
+        newHop.appendChild(createSelectLabel(id, "weight", "g", lastHop));
+        newHop.appendChild(labelButton);
+
+        hopsDiv.appendChild(newHop);
+
+        fillHopsList(lastHop, id);
     }
 
 }
 
+function createSelectLabel(id, elemName, unit, lastElCreated){
+    let label = document.createElement("label");
+    let elem = document.createElement("input");
+    elem.setAttribute("type", "number");
+    elem.setAttribute("step", "0.1");
+    elem.setAttribute("id", id+"_"+elemName+lastElCreated);
+    elem.style.width = "3em";
+    elem.onchange = function () {
+        updateData();
+    };
+    label.innerText = unit;
+    label.appendChild(elem);
+
+    return label;
+}
+
+function createLabel(name, id, element, unit){
+    let label = document.createElement("label");
+    label.innerText = name+":";
+    let input = document.createElement("input");
+    input.setAttribute("type", "number");
+    input.setAttribute("step", "0.1");
+    input.style.width = "3em";
+    input.setAttribute("id", element+"_"+id);
+    input.onchange = function () {
+        updateData();
+    };
+    label.appendChild(input);
+    return label;
+}
+
+function createOtherLabel(name, id, element, type, unit){
+    let label = document.createElement("label");
+    label.innerText = name+":";
+    let input = document.createElement("input");
+    input.setAttribute("type", "number");
+    input.setAttribute("step", "0.1");
+    input.style.width = "3em";
+    input.setAttribute("id", element+"_"+type+"_"+id);
+    input.onchange = function () {
+        updateData();
+    };
+    label.appendChild(input);
+    return label;
+}
+
 function removeElement (){
     let el = event.currentTarget;
-    let divToDelete = document.getElementById(el.getAttribute("id").substring(7));
-    document.getElementById("mash_malts").removeChild(divToDelete);
+    let id = el.getAttribute("id").substring(0,3);
+    let divToDelete = document.getElementById(id+"_"+el.getAttribute("id").substring(11));
+    document.getElementById("mash_malts_"+id).removeChild(divToDelete);
 
 }
+
+function createWrapper(type, pos, row, id){
+    let wrapper = document.createElement("div");
+    wrapper.setAttribute("id", "wrapper-"+id);
+    wrapper.setAttribute("class", "wrapper");
+    wrapper.setAttribute("about", "false");
+    wrapper.setAttribute("ref-pos", pos);
+    wrapper.setAttribute("ref-row", row);
+
+    let data = document.createElement("div");
+    data.style.zIndex = "+3";
+
+    switch (type){
+        case activity.MASHING:{
+            createMashElements(data, id, type);
+            break;
+        }
+        case activity.BOILING:{
+            createBoilElements(data, id, type);
+            break;
+        }
+        case activity.FERMENTING:{
+            createFermentElements(data, id, type);
+            break;
+        }
+        case activity.BOTTLING:{
+            break;
+        }
+    }
+
+    wrapper.appendChild(data);
+    return wrapper;
+}
+
+function createMashElements(data, id, type){
+    data.appendChild(createLabel("Acqua mashing", "mash_water", id,  "l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Acqua sparging", "sparge_water", id,  "l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Efficienza", "efficiency", id, "%"));
+
+    let malts = document.createElement("div");
+    malts.setAttribute("id", type+"_malts_"+id);
+    let p = document.createElement("p");
+    p.innerText = "Malti";
+    malts.appendChild(p);
+    let malt0 = document.createElement("div");
+    malt0.setAttribute("id", id+"_malt0");
+    let select = document.createElement("select");
+    select.setAttribute("name", "malt0");
+    select.setAttribute("id", id+"_"+type+"_malt0");
+    select.onchange = function (){ setOptionParams()};
+    malt0.appendChild(select);
+    malt0.appendChild(createOtherLabel("EBC", "EBC0", id, "malt"));
+    malt0.appendChild(createOtherLabel("kg", "weight0", id, "malt"));
+    let labelButton = document.createElement("label");
+    let buttonRemove = document.createElement("button");
+    buttonRemove.setAttribute("id", id+"_remove_malt0");
+    buttonRemove.onclick = function () {
+        removeElement();
+    };
+    buttonRemove.innerText = "-";
+    labelButton.appendChild(buttonRemove);
+    malt0.appendChild(labelButton);
+    malts.appendChild(malt0);
+    data.appendChild(malts);
+    let divAddButton = document.createElement("div");
+    let buttonAdd = document.createElement("button");
+    buttonAdd.setAttribute("id", id+"_add_malt");
+    buttonAdd.onclick = function () {
+        addElement();
+    };
+
+    buttonAdd.innerText = "+";
+    divAddButton.appendChild(buttonAdd);
+    data.appendChild(divAddButton);
+
+    data.appendChild(createLabel("Perdite", "mash_loss", id, "l"));
+}
+
+function createBoilElements(data, id, type){
+    data.appendChild(createLabel("Durata", "time", id, "min"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Whirpool", "whirpool", id, "min"));
+
+
+    let hops = document.createElement("div");
+    hops.setAttribute("id", type+"_hops_"+id);
+    let p = document.createElement("p");
+    p.innerText = "Luppoli";
+    hops.appendChild(p);
+    let hop0 = document.createElement("div");
+    hop0.setAttribute("id", id+"_hop0");
+    let select = document.createElement("select");
+    select.setAttribute("name", "hop0");
+    select.setAttribute("id", id+"_"+type+"_hop0");
+    select.onchange = function (){ setOptionParams()};
+    hop0.appendChild(select);
+    hop0.appendChild(createOtherLabel("AA%", "aa0", id, "hop"));
+    hop0.appendChild(createOtherLabel("min", "time0", id,"hop"));
+    hop0.appendChild(createOtherLabel("g", "weight0", id, "hop"));
+    let labelButton = document.createElement("label");
+    let buttonRemove = document.createElement("button");
+    buttonRemove.setAttribute("id", id+"_remove_hop0");
+    buttonRemove.onclick = function () {
+        removeElement();
+    };
+    buttonRemove.innerText = "-";
+    labelButton.appendChild(buttonRemove);
+    hop0.appendChild(labelButton);
+    hops.appendChild(hop0);
+    data.appendChild(hops);
+    let divAddButton = document.createElement("div");
+    let buttonAdd = document.createElement("button");
+    buttonAdd.setAttribute("id", id+"_add_hop");
+    buttonAdd.onclick = function () {
+        addElement();
+    };
+
+    buttonAdd.innerText = "+";
+    divAddButton.appendChild(buttonAdd);
+    data.appendChild(divAddButton);
+
+    data.appendChild(createLabel("Zucchero", "sugar", id, "kg"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Acqua", "water", id, "l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Perdite", "boil_loss", id, "l"));
+}
+
+function createFermentElements(data, id, type){
+
+    data.appendChild(createLabel("Temperatura", "temp", id, "°C"));
+
+    let yeasts = document.createElement("div");
+    yeasts.setAttribute("id", type+"_yeast_"+id);
+    let p1 = document.createElement("p");
+    p1.innerText = "Lievito";
+    yeasts.appendChild(p1);
+    let yeast0 = document.createElement("div");
+    yeast0.setAttribute("id", id+"_yeast0");
+    let select1 = document.createElement("select");
+    select1.setAttribute("name", "yeast0");
+    select1.setAttribute("id", id+"_"+type+"_yeast0");
+    select1.onchange = function (){ setOptionParams()};
+    yeast0.appendChild(select1);
+    yeast0.appendChild(createOtherLabel("AA%", "aa0", id, "yeast"));
+    yeasts.appendChild(yeast0);
+    data.appendChild(yeasts);
+
+    let hops = document.createElement("div");
+    hops.setAttribute("id", type+"_hops_"+id);
+    let p2 = document.createElement("p");
+    p2.innerText = "Luppoli in dry hopping";
+    hops.appendChild(p2);
+    let hop0 = document.createElement("div");
+    hop0.setAttribute("id", id+"_hop0");
+    let select2 = document.createElement("select");
+    select2.setAttribute("name", "hop0");
+    select2.setAttribute("id", id+"_"+type+"_hop0");
+    select2.onchange = function (){ setOptionParams()};
+    hop0.appendChild(select2);
+    hop0.appendChild(createOtherLabel("AA%", "aa0", id, "hop"));
+    hop0.appendChild(createOtherLabel("giorni", "time0", id, "hop"));
+    hop0.appendChild(createOtherLabel("g", "weight0", id, "hop"));
+    let labelButton = document.createElement("label");
+    let buttonRemove = document.createElement("button");
+    buttonRemove.setAttribute("id", id+"_remove_hop0");
+    buttonRemove.onclick = function () {
+        removeElement();
+    };
+    buttonRemove.innerText = "-";
+    labelButton.appendChild(buttonRemove);
+    hop0.appendChild(labelButton);
+    hops.appendChild(hop0);
+    data.appendChild(hops);
+    let divAddButton = document.createElement("div");
+    let buttonAdd = document.createElement("button");
+    buttonAdd.setAttribute("id", id+"_add_hop");
+    buttonAdd.onclick = function () {
+        addElement();
+    };
+
+    buttonAdd.innerText = "+";
+    divAddButton.appendChild(buttonAdd);
+    data.appendChild(divAddButton);
+
+    data.appendChild(createLabel("Zucchero", "sugar", id, "kg"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Acqua", "water", id, "l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Perdite", "boil_loss", id, "l"));
+}
+
+
+
 
