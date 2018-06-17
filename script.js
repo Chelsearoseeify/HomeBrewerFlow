@@ -1197,7 +1197,6 @@ function saveFerment(idElement){
     let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
     let position = document.getElementById(idElement).getAttribute("position");
 
-
     let recipe = recipes[row].flow;
     let params = recipe.process[position].params;
 
@@ -1234,7 +1233,11 @@ function saveFerment(idElement){
 }
 
 function saveBottle(){
+    let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
+    let position = document.getElementById(idElement).getAttribute("position");
 
+    let recipe = recipes[row].flow;
+    let params = recipe.process[position].params;
 }
 
 function updateData(){
@@ -1502,6 +1505,7 @@ function createWrapper(type, pos, row, id){
             break;
         }
         case activity.BOTTLING:{
+            createBottleElements(data, id);
             break;
         }
     }
@@ -1666,6 +1670,18 @@ function createFermentElements(data, id, type){
     data.appendChild(createLabel("Zucchero", "sugar", id, "kg"));
     data.appendChild(document.createElement("br"));
     data.appendChild(createLabel("Acqua", "water", id, "l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Perdite", "boil_loss", id, "l"));
+}
+
+function createBottleElements(data, id){
+    data.appendChild(createLabel("Sucrose", "temp", id, "g/l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Dextrose", "temp", id, "g/l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Extract", "temp", id, "g/l"));
+    data.appendChild(document.createElement("br"));
+    data.appendChild(createLabel("Speise", "temp", id, "l"));
     data.appendChild(document.createElement("br"));
     data.appendChild(createLabel("Perdite", "boil_loss", id, "l"));
 }
