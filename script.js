@@ -1652,6 +1652,7 @@ function setOptionParams(id){
     }
 
     recipes[1].flow.brew();
+    updateData();
     update();
 
 }
