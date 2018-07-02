@@ -1043,6 +1043,7 @@ function deleteActivity(obj){
 
 
     recipes[1].flow.brew();
+    updateData();
     update();
 }
 
@@ -1136,8 +1137,10 @@ function splitActivities(obj){
     let shifterPosition = document.getElementsByClassName("grid-item-row"+obj.row);
     for(let i=0; i<=shifterPosition.length-1; i++){
         let newPosition = parseInt(shifterPosition[i].getAttribute("position"));
-        newPosition +=2;
-        shifterPosition[i].setAttribute("position", newPosition);
+        if(newPosition >= obj.position){
+            newPosition +=2;
+            shifterPosition[i].setAttribute("position", newPosition);
+        }
     }
 
     let img = document.getElementById("imgS" + obj.id.substring(2));
