@@ -10,7 +10,6 @@
     background: none;
     display: inline-block;
 
-
 }
 .elem-container {
     display: grid;
@@ -26,28 +25,24 @@
 .flow-buttons{
     grid-column: 1/1;
     grid-row: 1/1;
-    padding: 20px 0 0 0;
-    margin: 0 0 0 0;
-    display: inline-block;
     z-index: +2;
-    vertical-align: center;
+    display: table-cell;
+    vertical-align: middle;
 }
 .activity-buttons{
     grid-column: 1/1;
     grid-row: 1/span 1;
-    padding: 45px 0 0 0;
-    margin: 0 0 0 0;
+    margin: 10px 0 0 0;
+    vertical-align: center;
     float: right;
     position: relative;
-    left: 280px;
+    left: 210px;
     text-align: left;
     display: none;
 }
 .delete-buttons{
     grid-column: 1/1;
     grid-row: 1/1;
-    padding: 20px 0 0 0;
-    margin: 0 0 0 0;
     z-index: +2;
 
 }
@@ -62,23 +57,25 @@
     grid-column: 1/1;
     grid-row: 1/1;
     padding: 10px 10px 10px 10px;
-    margin: 90px 68px 0px 68px;
+    margin: 90px 15px 0 15px;
     display: none;
     font-size: small;
     text-align: center;
     background: rgba(255, 255, 255, 0.5);
+    font-family: Arial, Verdana, Helvetica;
 }
 
 .wrapper{
     grid-column: 1/1;
     grid-row: 1/1;
     padding: 10px 10px 10px 10px;
-    margin: 90px -20px 0px -20px;
+    margin: 90px 0 0 0;
     display: none;
     font-size: small;
     text-align: left;
     z-index: +4;
     background: rgba(255, 255, 255, 0.5);
+    font-family: Arial, Verdana, Helvetica;
 }
 
 #el0{
@@ -122,8 +119,8 @@
     border: none;
 }
 .flow-button{
-    display: inline-block;
     background: none;
+    margin: 3px 3px 3px 3px;
     border: none;
 }
 .delete-button{
@@ -141,7 +138,9 @@ p{
     padding: 0 0 0 0;
 }
 
-
+h1{
+    font-family: Arial, Verdana, Helvetica;
+}
 
 
 .param{

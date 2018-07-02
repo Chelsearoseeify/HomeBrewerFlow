@@ -41,6 +41,7 @@ const equipment = {
 };
 
 let malts = [
+    { name : '-', weight : 0, ebc  : 0 },
     { name : 'Pilsner', weight : 2, ebc  : 3 },
     { name : 'Maris Otter', weight : 6.2, ebc : 3.2 },
     { name : 'Crystal', weight : 0.4, ebc  : 160 },
@@ -48,13 +49,16 @@ let malts = [
 ];
 
 let hops = [
+    {name : '-', type : 'Pellet', weight : 0, aa : 0, time :  0, after_hot_break : true},
     {name : 'Cascade', type : 'Pellet', weight : 20, aa : 5.5, time :  60, after_hot_break : true},
     {name : 'EKG', type : 'Pellet', weight : 55, aa : 5.9, time : 60, after_hot_break : true},
     {name : 'EKG', type : 'Pellet', weight : 25, aa : 5.9, time : 30, after_hot_break : true}
 
 ];
 
-let yeasts = [{ name: 'WYeast London ESB', type : 'liquid', attenuation : 75}];
+let yeasts = [
+    { name: '-', type : '-', attenuation : 0},
+    { name: 'WYeast London ESB', type : 'liquid', attenuation : 75}];
 
 let isToMerged = false;
 let flowToMerge;
@@ -74,10 +78,11 @@ let objSelected = {
     about: ""
 };
 
-function MemorySplit(origin, destination, position){
+function MemorySplit(origin, destination, position, column){
     this.orRecipeId = origin;
     this.destRecipeId = destination;
     this.position = position;
+    this.column = column
 }
 
 function Recipe(id, recipe, first_action){
@@ -87,8 +92,8 @@ function Recipe(id, recipe, first_action){
     this.splitStack = [];
 
 
-    this.setSplit = function(origin, destination, position){
-        this.splitStack.push(new MemorySplit(origin, destination, position));
+    this.setSplit = function(origin, destination, position, column){
+        this.splitStack.push(new MemorySplit(origin, destination, position, column));
     };
 
     this.addElementToStack = function(action){
@@ -125,39 +130,69 @@ function setObjectSelected(id){
     let obj = document.getElementById(id);
     let style = window.getComputedStyle(obj);
 
-    objSelected.id = id;
-    objSelected.column = parseInt(style.getPropertyValue('grid-column-start'));
-    objSelected.row = parseInt(style.getPropertyValue('grid-row-start'));
-    objSelected.type = obj.getAttribute("type");
     objSelected.position = parseInt(obj.getAttribute("position"));
-    objSelected.about = obj.getAttribute("about");
-    if(!(objSelected.about === "Mash water") && objSelected.type === "flow" )
-        objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2].name;
-    return objSelected;
+    if(!(objSelected.position === -1)){
+        objSelected.id = id;
+        objSelected.column = parseInt(style.getPropertyValue('grid-column-start'));
+        objSelected.row = parseInt(style.getPropertyValue('grid-row-start'));
+        objSelected.type = obj.getAttribute("type");
+        objSelected.about = obj.getAttribute("about");
+        if(!(objSelected.about === "Mash water") && objSelected.type === "flow" ){
+            //objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2].name;
+            let i=0;
+            objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2-i].name;
+            while(objSelected.previousFlowAbout.includes("Split flow")||objSelected.previousFlowAbout.includes("Start flow")){
+                objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2-i].name;
+                i +=2;
+            }
+        }
+        return objSelected;
+    }else
+        return null;
+
+}
+
+function getRow(obj){
+    return parseInt(window.getComputedStyle(obj).getPropertyValue("grid-row-start"));
+
+}
+function getColumn(obj){
+    return parseInt(window.getComputedStyle(obj).getPropertyValue("grid-column-start"));
+}
+
+function getImage(obj){
+    return document.getElementById("imgS"+obj.getAttribute("id").substring(2));
 }
 
 
 function appear() {
     let id = event.currentTarget.id;
-    let obj_flow = document.getElementById("flow-buttons-"+id);
-    let obj_activity = document.getElementById("activity-buttons-"+id);
-    let obj_delete =  document.getElementById("delete-buttons-"+id);
     let targetObj = setObjectSelected(id);
+    if(targetObj != null){
+        let obj_flow = document.getElementById("flow-buttons-"+id);
+        let obj_activity = document.getElementById("activity-buttons-"+id);
+        let obj_delete =  document.getElementById("delete-buttons-"+id);
 
-    if (targetObj.type === "flow" && document.getElementById("flow-button") == null) {
-        obj_flow.appendChild(showFlowButton(targetObj));
-        let shifter = document.getElementsByClassName("grid-item-row" + targetObj.row);
-        if (parseInt(targetObj.position) === parseInt(shifter[shifter.length - 1].getAttribute("position"))){
-            obj_activity.style.display = "inline";
-            obj_activity.appendChild(showActivityButton(targetObj));
+
+        if (targetObj.type === "flow" && document.getElementById("flow-button") == null) {
+            obj_flow.appendChild(showFlowButton(targetObj));
+            let shifter = document.getElementsByClassName("grid-item-row" + targetObj.row);
+            let arr = [0];
+            for(let i=0; i<shifter.length;i++){
+                arr[i] = parseInt(shifter[i].getAttribute("position"));
+            }
+            let temp = Math.max.apply(Math, arr);
+            if (parseInt(targetObj.position) === Math.max.apply(Math, arr)){
+                obj_activity.style.display = "inline";
+                obj_activity.appendChild(showActivityButton(targetObj));
+                let i = 1;
+            }
+        } else if (targetObj.type === "activity" && document.getElementById("delete-button") == null) {
+            let temp = showDeleteButton(targetObj);
+            obj_delete.appendChild(temp);
             let i = 1;
         }
-    } else if (targetObj.type === "activity" && document.getElementById("delete-button") == null) {
-        let temp = showDeleteButton(targetObj);
-        obj_delete.appendChild(temp);
-        let i = 1;
     }
-
 }
 
 function disappear(objId){
@@ -171,26 +206,26 @@ function disappear(objId){
     let obj_delete =  document.getElementById("delete-buttons-"+id);
 
     let targetObj = setObjectSelected(id);
-    if (targetObj.type === "flow") {
-        obj_flow.removeChild(document.getElementById("flow-button"));
-        if (document.getElementById("activity-button") !== null){
-            obj_activity.removeChild(document.getElementById("activity-button"));
-            obj_activity.style.display = "none";
+    if(targetObj != null){
+        if (targetObj.type === "flow") {
+            obj_flow.removeChild(document.getElementById("flow-button"));
+            if (document.getElementById("activity-button") !== null){
+                obj_activity.removeChild(document.getElementById("activity-button"));
+                obj_activity.style.display = "none";
+            }
+
         }
-
+        else if (targetObj.type === "activity") {
+            obj_delete.removeChild(document.getElementById("delete-button"));
+        }
     }
-    else if (targetObj.type === "activity") {
-        obj_delete.removeChild(document.getElementById("delete-button"));
-    }
-
-
 }
 
 //mostra i pulsanti mergeActivities e split sullo stato
 function showFlowButton(obj){
     let item = document.createElement("div");
     item.setAttribute("id", "flow-button");
-
+    item.setAttribute("class", "flow-buttons-container");
 
     if(!obj.about.includes("Split")){
 
@@ -215,28 +250,52 @@ function showFlowButton(obj){
         item.appendChild(buttonSplit);
     }
 
-    let buttonMerge = document.createElement("button");
-    let mergeImg = document.createElement("img");
-    mergeImg.setAttribute("src", "symbols/icon/merge-black.png");
-    mergeImg.setAttribute("class", "icon");
-    buttonMerge.appendChild(mergeImg);
-    buttonMerge.setAttribute("class", "flow-button");
-    buttonMerge.onclick = function () {
+    let temp = document.getElementById("imgS"+obj.id.substring(2)).src;
+    if(!(temp.includes("corner") || obj.about.includes("Merged"))){
+        let buttonMerge = document.createElement("button");
+        let mergeImg = document.createElement("img");
+        mergeImg.setAttribute("src", "symbols/icon/merge-black.png");
+        mergeImg.setAttribute("class", "icon");
+        buttonMerge.appendChild(mergeImg);
+        buttonMerge.setAttribute("class", "flow-button");
+        buttonMerge.onclick = function () {
 
-        flowToMerge = document.getElementById(obj.id);
-        selectFlowsToMerge(obj.column, "#DC143C");
-    };
-    buttonMerge.onmouseover = function (){
-        mergeImg.style.height = "35px";
-        mergeImg.style.width = "35px";
+            flowToMerge = document.getElementById(obj.id);
+            colorFlowsToMerge(obj.column, true);
+        };
+        buttonMerge.onmouseover = function (){
+            mergeImg.style.height = "35px";
+            mergeImg.style.width = "35px";
 
-    };
-    buttonMerge.onmouseleave = function (){
-        mergeImg.style.height = "30px";
-        mergeImg.style.width = "30px";
+        };
+        buttonMerge.onmouseleave = function (){
+            mergeImg.style.height = "30px";
+            mergeImg.style.width = "30px";
 
-    };
+        };
 
+        item.appendChild(buttonMerge);
+    }else{
+        let buttonDelete = document.createElement("button");
+        let deleteImg = document.createElement("img");
+        deleteImg.setAttribute("src", "symbols/icon/delete-black.png");
+        deleteImg.setAttribute("class", "icon");
+        buttonDelete.appendChild(deleteImg);
+        buttonDelete.setAttribute("class", "delete-button");
+        buttonDelete.onclick = function () {
+            deleteActivity(obj); };
+        buttonDelete.onmouseover = function (){
+            deleteImg.style.height = "35px";
+            deleteImg.style.width = "35px";
+
+        };
+        buttonDelete.onmouseleave = function (){
+            deleteImg.style.height = "30px";
+            deleteImg.style.width = "30px";
+
+        };
+        item.appendChild(buttonDelete);
+    }
 
     let buttonList = document.createElement("button");
     let listImg = document.createElement("img");
@@ -254,7 +313,7 @@ function showFlowButton(obj){
         listImg.style.width = "30px";
     };
 
-    item.appendChild(buttonMerge);
+
     item.appendChild(buttonList);
     return item;
 }
@@ -263,9 +322,12 @@ function showFlowButton(obj){
 function showActivityButton(obj){
     let item = document.createElement("div");
     item.setAttribute("id", "activity-button");
-    item.style.display = "inline-block";
+    item.setAttribute("class", "activity-buttons-container");
+    item.style.height = "120px";
+    item.style.display = "table-cell";
+    item.style.verticalAlign = "middle";
     let type;
-    if(obj.about === "Start flow" || obj.about === "Split flow")
+    if(obj.about === "Start flow" || obj.about === "Split flow" || obj.about === "Merged flow")
          type = obj.previousFlowAbout;
     else
         type = obj.about;
@@ -307,6 +369,7 @@ function createActivityButton(obj, text){
     button.onmouseleave = function (){button.style.fontSize = "18px"};
     button.setAttribute("class", "activity-button");
     button.style.fontSize = "18px";
+    button.style.display = "block";
 
     return button;
 }
@@ -413,12 +476,15 @@ function showDataInActivity(type, position, row, id){
             document.getElementById(id+"_mash_loss").value = params.mash_loss;
 
             let maltslist = document.getElementById(id+"_"+type+"_malt0");
-            for(let i=0; i<malts.length; i++){
-                var opt = document.createElement("option");
-                opt.innerHTML = malts[i].name;
-                opt.value = malts[i].name;
-                maltslist.appendChild(opt);
+            if(maltslist.options[0] == null){
+                for(let i=0; i<malts.length; i++){
+                    var opt = document.createElement("option");
+                    opt.innerHTML = malts[i].name;
+                    opt.value = malts[i].name;
+                    maltslist.appendChild(opt);
+                }
             }
+
             let selectedMaltName = maltslist.options[maltslist.selectedIndex].value;
             let selectedMalt;
 
@@ -445,6 +511,7 @@ function showDataInActivity(type, position, row, id){
             document.getElementById(id+"_sugar").value = params.sugar_addition.qty;
             document.getElementById(id+"_water").value = params.water_addition;
             document.getElementById(id+"_boil_loss").value = params.boil_loss;
+
             let hopslist = document.getElementById(id+"_"+type+"_hop0");
             for(let i=0; i<hops.length; i++){
                 var opt = document.createElement("option");
@@ -456,7 +523,7 @@ function showDataInActivity(type, position, row, id){
             let selectedHop;
 
             for(let i=0; i<hops.length;i++){
-                if(hops[i].name == selectedHopName){
+                if(hops[i].name === selectedHopName){
                     selectedHop = hops[i];
                 }
             }
@@ -528,6 +595,7 @@ function showDataInActivity(type, position, row, id){
     }
 }
 
+/*
 function showData(ident, position, row){
     let wrapper = document.getElementById("wrapper_"+ident);
     if(position == null && row == null ){
@@ -668,7 +736,7 @@ function hideData(ident){
         space.setAttribute("about", "false");
     }
 }
-
+*/
 
 
 //aggiunge un'attivit‡
@@ -717,7 +785,7 @@ function addActivity(obj, activityType){
     let newActivity = createActivity(obj.row, obj.column + 1, path,  activityType, obj.position);
     //crea un nuovo stato con id incrementato
     obj.position++;
-    let newState = createFlow(obj.row, obj.column + 2, "symbols/tubingsmall/simple.png", flowType, obj.position);
+    let newState = createFlow(obj.row, obj.column + 2, "symbols/tubingsmall/simpleSMALL.png", flowType, obj.position);
 
     container.appendChild(newActivity);
     container.appendChild(newState);
@@ -725,7 +793,7 @@ function addActivity(obj, activityType){
 }
 
 //unisce due attivit‡
-function selectFlowsToMerge(column, color){
+function colorFlowsToMerge(column, selection){
     let container = document.getElementById("grid-container");
     let targetFlows = [];
     let style;
@@ -750,7 +818,11 @@ function selectFlowsToMerge(column, color){
     if(complete) {
         isToMerged = true;
         for (let i = 0; i < targetFlows.length; i++) {
-            targetFlows[i].style.backgroundColor = color;
+            let id = targetFlows[i].getAttribute("id").substring(2);
+            if(selection)
+                document.getElementById("imgS"+id).src = "symbols/tubingsmall/simpleSELECTED.png";
+            else
+                document.getElementById("imgS"+id).src = "symbols/tubingsmall/simpleSMALL.png";
         }
     }
 
@@ -759,9 +831,9 @@ function selectFlowsToMerge(column, color){
 function mergeActivities(){
     let id = event.currentTarget.id;
     let selectedFlow = document.getElementById(id);
-    let style = window.getComputedStyle(selectedFlow);
-    let row = style.getPropertyValue('grid-row-start');
-    let column = style.getPropertyValue('grid-column-start');
+    let container = document.getElementById("grid-container");
+
+    /*
     let activityType;
 
     switch(selectedFlow.getAttribute("about")){
@@ -785,12 +857,22 @@ function mergeActivities(){
 
     }
 
-    if(isToMerged===true && flowToMerge !== selectedFlow){
-        let container = document.getElementById("grid-container");
-        let styleFlowToMerge = window.getComputedStyle(flowToMerge);
-        let newActivity = createActivity(row, parseInt(column) + 1, "symbols/tubingsmall/"+activityType+".png", parseInt(selectedFlow.getAttribute("position"))+1);
 
-        let shifter = document.getElementsByClassName('grid-item-row'+row);
+*/
+
+
+    if(isToMerged===true && flowToMerge !== selectedFlow){
+        let styleSelectedFlow = window.getComputedStyle(selectedFlow);
+        let rowSelectedFlow = parseInt(styleSelectedFlow.getPropertyValue('grid-row-start'));
+        let column = parseInt(styleSelectedFlow.getPropertyValue('grid-column-start'));
+        //let container = document.getElementById("grid-container");
+        let styleFlowToMerge = window.getComputedStyle(flowToMerge);
+        let rowFlowToMerge = parseInt(styleFlowToMerge.getPropertyValue('grid-row-start'));
+        //let newActivity = createActivity(row, parseInt(column) + 1, "symbols/tubingsmall/"+activityType+".png", parseInt(selectedFlow.getAttribute("position"))+1);
+
+        colorFlowsToMerge(column, false);
+
+        let shifter = document.getElementsByClassName('grid-item-row'+rowSelectedFlow);
         for(let i = 0; i< shifter.length; i++){
             let columnToChange = parseInt(window.getComputedStyle(shifter[i]).getPropertyValue('grid-column-start'));
             if(columnToChange > column){
@@ -799,23 +881,48 @@ function mergeActivities(){
             }
         }
 
-        if(parseInt(row) < styleFlowToMerge.getPropertyValue('grid-row-start')){
-            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerup.png";
-            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectiondown.png";
+        if(parseInt(rowSelectedFlow) < styleFlowToMerge.getPropertyValue('grid-row-start')){
+            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerupSMALL.png";
+            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectiondownSMALL.png";
+            //let img = addBottomImg(selectedFlow, "symbols/tubingsmall/addedtube.png", selectedFlow.getAttribute("id").substring(2), 1);
+            //img.style.marginLeft = "0px";
         }else{
-            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerdown.png";
-            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectionup.png";
+            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerdownSMALL.png";
+            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectionupSMALL.png";
+        }
+        if(Math.abs(rowSelectedFlow-rowFlowToMerge)>1){
+            let min = Math.min(rowSelectedFlow, rowFlowToMerge)
+            for(let i = 1; i< Math.max(rowFlowToMerge, rowSelectedFlow); i++){
+                let currentRow = min+i;
+                let elementsCurrentRow = document.getElementsByClassName("grid-item-row"+currentRow);
+                for(let j= 0; j<elementsCurrentRow.length;j++){
+                    if(parseInt(window.getComputedStyle(elementsCurrentRow[j]).getPropertyValue("grid-column-start")) === column){
+                        let connection = createFlow(currentRow, column ,"symbols/tubingsmall/doubleintersectionSMALL.png", "connection", -1 );
+                        container.appendChild(connection);
+                    }else{
+                        let connection = createFlow(currentRow, column ,"symbols/tubingsmall/verticalSMALL.png", "connection", -1 );
+                        container.appendChild(connection);
+                    }
+
+                }
+            }
         }
         let about = selectedFlow.getAttribute("about");
         flowToMerge.setAttribute("about", about + "_merged");
-        let newFlow = createFlow(row, parseInt(column) + 2, "symbols/tubingsmall/simple.png",
-            selectedFlow.getAttribute("about"), parseInt(selectedFlow.getAttribute("position"))+2);
-        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.add_merge(selectedFlow.getAttribute("position"), recipes[row].flow, selectedFlow.getAttribute("position"));
-        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.brew();
-        container.appendChild(newActivity);
-        container.appendChild(newFlow);
+        flowToMerge.setAttribute("destination", selectedFlow.getAttribute("id"));
 
-        selectFlowsToMerge(column, "#f5f5f5");
+
+        //let newFlow = createFlow(row, parseInt(column) + 2, "symbols/tubingsmall/simpleSMALL.png",
+            //selectedFlow.getAttribute("about"), parseInt(selectedFlow.getAttribute("position"))+2);
+        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.add_merge(selectedFlow.getAttribute("position"), recipes[rowSelectedFlow].flow, selectedFlow.getAttribute("position"));
+        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.brew();
+        //container.appendChild(newActivity);
+        //container.appendChild(newFlow);
+        let newPos = parseInt(selectedFlow.getAttribute("position"))+2;
+        selectedFlow.setAttribute("position", newPos);
+        selectedFlow.setAttribute("about", recipes[window.getComputedStyle(selectedFlow).getPropertyValue('grid-row-start')].flow.process[newPos].name);
+
+
         isToMerged =false;
 
     }
@@ -826,51 +933,176 @@ function deleteActivity(obj){
 
     let container = document.getElementById("grid-container");
     let elementsInARow = document.getElementsByClassName("grid-item-row"+obj.row);
+    let sourceRecipe;
+    let posOfSplit;
+    let gridcontainer = document.getElementById("grid-container");
+    let items = gridcontainer.children;
 
-    for(let i = elementsInARow.length-1; i>=0; i--) {
-        let currentPos = elementsInARow[i].getAttribute("position");
-        if(currentPos >= obj.position){
+
+    if(document.getElementById("imgS"+obj.id.substring(2)).src.includes("corner")){
+        for(let i = 1; i<recipes.length; i++){
+            for(let j = 0; j<recipes[i].splitStack.length; j++){
+                if(recipes[i].splitStack[j].destRecipeId === obj.row){
+                    sourceRecipe = recipes[i].splitStack[j].orRecipeId;
+                    posOfSplit = recipes[i].splitStack[j].position;
+                    recipes[sourceRecipe].flow.delete(posOfSplit+1);
+                }
+            }
+        }
+        for(let i = elementsInARow.length-1; i>=0; i--) {
+            //let currentPos = elementsInARow[i].getAttribute("position");
+            //if(currentPos >= obj.position){
             container.removeChild(document.getElementById(elementsInARow[i].getAttribute("id")));
-
+            /*
             if(i%2 === 0)
                 recipes[obj.row].removeLastElementFromStack();
+                */
+            //}
+        }
+        recipes.splice(obj.row, 1);
+        for(let i = 1; i<recipes.length; i++){
+            if(recipes[i].id != i){
+                let children = document.getElementsByClassName("grid-item-row"+(i+1));
+                for(let j = 0; j<children.length;j++){
+                    children[j].style.gridRow = i + "/ " + i;
+                    children[j].setAttribute("class", "grid-item-row"+i);
+                }
+                recipes[i].id = i;
+            }
+        }
+        for (let i = 0; i<items.length; i++){
+            if(items[i].getAttribute("position") == posOfSplit+2){
+                let id = items[i].getAttribute("id");
+                let img = document.getElementById("imgS"+id.substring(2));
+                if(img.src.includes("begin"))
+                    img.src = "symbols/tubingsmall/beginSMALL.png";
+                else if (img.src.includes("simple"))
+                    img.src = "symbols/tubingsmall/simpleSMALL.png";
+                else
+                    img.src = "symbols/tubingsmall/rightcornerupSMALL.png";
+
+            }
+        }
+        for (let i = 0; i<items.length; i++){
+            if(items[i].getAttribute("position") >= posOfSplit+2 &&
+                window.getComputedStyle(items[i]).getPropertyValue('grid-row-start') == sourceRecipe){
+                items[i].setAttribute("position", parseInt(items[i].getAttribute("position"))-2);
+                items[i].setAttribute("about", recipes[sourceRecipe].flow.process[parseInt(items[i].getAttribute("position"))].name);
+            }
         }
     }
-    recipes[obj.row].flow.delete(obj.position);
 
-    if(recipes[obj.row].splitStack.length !== 0){
-        for(let i=0; i<recipes[obj.row].splitStack.length; i++){
-            let rowToDelete = recipes[obj.row].splitStack[i].destRecipeId;
-            let posOfSplittedRecipe = recipes[obj.row].splitStack[i].position;
-            if(obj.position <= posOfSplittedRecipe){
-                recipes.splice(rowToDelete,1);
-                let recipeToDelete = document.getElementsByClassName("grid-item-row"+rowToDelete);
-                for(let i = recipeToDelete.length-1; i>=0; i--){
-                    container.removeChild(document.getElementById(recipeToDelete[i].getAttribute("id")));
-                }
+    if(recipes[obj.row] != null) {
+        while (recipes[obj.row].flow.process[obj.position] != null) {
+            recipes[obj.row].flow.delete(obj.position);
+        }
 
-                for(let i=rowToDelete+1; i<=recipes.length; i++){
-                    let shifter = document.getElementsByClassName("grid-item-row"+i);
-                    for(let j=0; j<shifter.length; j){
-                        shifter[j].classList.add("grid-item-row"+(i-1));
-                        shifter[j].classList.remove("grid-item-row"+i);
+        if (recipes[obj.row].splitStack.length !== 0) {
+            for (let i = 0; i < recipes[obj.row].splitStack.length; i++) {
+                let rowToDelete = recipes[obj.row].splitStack[i].destRecipeId;
+                let posOfSplittedRecipe = recipes[obj.row].splitStack[i].position;
+                if (obj.position <= posOfSplittedRecipe) {
+                    recipes.splice(rowToDelete, 1);
+                    let recipeToDelete = document.getElementsByClassName("grid-item-row" + rowToDelete);
+                    for (let i = recipeToDelete.length - 1; i >= 0; i--) {
+                        container.removeChild(document.getElementById(recipeToDelete[i].getAttribute("id")));
+                    }
+
+                    for (let i = rowToDelete + 1; i <= recipes.length; i++) {
+                        let shifter = document.getElementsByClassName("grid-item-row" + i);
+                        for (let j = 0; j < shifter.length; j) {
+                            shifter[j].classList.add("grid-item-row" + (i - 1));
+                            shifter[j].classList.remove("grid-item-row" + i);
+                        }
                     }
                 }
             }
         }
     }
 
+    for(let i = 0; i<=items.length-1; i++){
+        if(document.getElementById("imgS"+items[i].getAttribute("id").substring(2)).src.includes("leftcorner")){
+            let el = document.getElementById(items[i].getAttribute("destination"));
+            if(obj.row == window.getComputedStyle(items[i]).getPropertyValue('grid-row-start')){
+                let img = document.getElementById("imgS"+el.getAttribute("id").substring(2));
+                img.src = "symbols/tubingsmall/simpleSMALL.png"
+            }
+        }
+    }
+
+    for(let i = elementsInARow.length-1; i>=0; i--) {
+        let currentPos = elementsInARow[i].getAttribute("position");
+        if(currentPos >= obj.position){
+        container.removeChild(document.getElementById(elementsInARow[i].getAttribute("id")));
+        /*
+        if(i%2 === 0)
+            recipes[obj.row].removeLastElementFromStack();
+            */
+        }
+    }
+
+
+    recipes[1].flow.brew();
+    update();
+}
+
+function fillTheGaps(){
+    let container = document.getElementById("grid-container");
+    let elements = container.children;
+
+    for(let i = 0; i<elements.length; i++){
+        if(document.getElementById("imgS"+elements[i].getAttribute("id").substring(2)).src.includes("singleintersection")){
+            let column1 = parseInt(window.getComputedStyle(elements[i]).getPropertyValue("grid-column-start"));
+            let row = parseInt(window.getComputedStyle(elements[i]).getPropertyValue("grid-row-start"));
+            for(let j=0;j<elements.length;j++){
+                let column2 = parseInt(window.getComputedStyle(elements[j]).getPropertyValue("grid-column-start"));
+                //let row2 = parseInt(window.getComputedStyle(elements[j]).getPropertyValue("grid-row-start"));
+                if(column1 === column2 && row === row+1+j){
+                    if(elements[j] == null){
+                        let connection = createFlow(row+1, column1 ,"symbols/tubingsmall/verticalSMALL.png", "connection", -1 );
+                        container.appendChild(connection);
+                    }else if(document.getElementById("imgS" +elements[j].getAttribute("id").substring(2)).src.includes("simple")){
+                        let connection = createFlow(row+1, column1 ,"symbols/tubingsmall/doubleintersectionSMALL.png", "connection", -1 );
+                        container.appendChild(connection);
+                    }
+                }
+            }
+        }
+    }
 }
 
 //divide la ricetta dando origine ad una nuova
 function splitActivities(obj){
     let container = document.getElementById("grid-container");
     let splitStack = recipes[obj.row].splitStack;
+    let rowprec = obj.row+1;
+    let columnprec;
+    let rowaft ;
+    let columnaft;
+    let newRow;
 
-    let newRow = obj.row+1;
+
+    for(let i = 0; i<splitStack.length; i++){
+        if(splitStack[i].column<obj.column){ //c'è uno split prima
+            rowprec = splitStack[i].destRecipeId;
+            columnprec = splitStack[i].column;
+        }
+    }
+    for(let i = splitStack.length-1; i>=0; i--){
+        if(splitStack[i].column>obj.column){ //c'è uno split dopo
+            rowaft = splitStack[i].destRecipeId;
+            columnaft = splitStack[i].column;
+        }
+    }
+    if(rowaft != null && columnaft != null){
+        newRow = rowaft+1;
+    }else {
+        newRow = rowprec;
+    }
+
     let newRecipe = homebrewlib.newRecipe();
     recipes[obj.row].flow.add_split(obj.position, newRecipe);
-    recipes[obj.row].setSplit(obj.row, newRow, obj.position);
+    recipes[obj.row].setSplit(obj.row, newRow, obj.position, obj.column);
 
     if(recipes.length === obj.row+1) // se l'array contiene come ultimo elemento la ricetta corrente
         recipes[newRow] = new Recipe(parseInt(recipes[obj.row].id) + 1, newRecipe, flow.MASH_WATER);
@@ -902,35 +1134,25 @@ function splitActivities(obj){
     }
 
     let shifterPosition = document.getElementsByClassName("grid-item-row"+obj.row);
-    for(let i=obj.position+1; i<shifterPosition.length; i++){
+    for(let i=0; i<=shifterPosition.length-1; i++){
         let newPosition = parseInt(shifterPosition[i].getAttribute("position"));
         newPosition +=2;
         shifterPosition[i].setAttribute("position", newPosition);
     }
 
-    let img = document.getElementById("imgS" + obj.id.substring(2, 3));
-    if(img.src.includes("simple") || img.src.includes("begin"))
-        img.src = "symbols/tubingsmall/singleintersectiondown.png";
+    let img = document.getElementById("imgS" + obj.id.substring(2));
+    if(img.src.includes("simple")) {
+        img.src = "symbols/tubingsmall/singleintersectiondownSMALL.png";
+        //addBottomImg(document.getElementById(obj.id), "symbols/tubingsmall/addedtube.png", obj.id.substring(2,3), 1);
+
+    }else if(img.src.includes("begin")){
+        img.src = "symbols/tubingsmall/splittedbeginSMALL.png";
+    }
     else
-        img.src = "symbols/tubingsmall/doublesplit2.png";
+        img.src = "symbols/tubingsmall/doublesplitSMALL.png";
     img.style.height = "280px";
 
-    let splitFlow = createFlow(newRow, obj.column, "symbols/tubingsmall/rightcornerup2.png", "Start flow", obj.position+2);
-
-
-    for (let i = 0; i<splitStack.length; i++){
-        if(splitStack[i].destRecipeId > newRow && splitStack[i].position <= obj.position+2){
-            let shifter = document.getElementsByClassName("grid-item-row"+obj.row);
-            for(let j=0; j<shifter.length; j++){
-                if(parseInt(shifter[j].getAttribute("position")) === splitStack[i].position){
-                    let column = window.getComputedStyle(shifter[j]).getPropertyValue('grid-column-start');
-                    let connection = createFlow(newRow, column ,"symbols/tubingsmall/vertical.png", "connection", -1 );
-                    container.appendChild(connection);
-                }
-            }
-        }
-    }
-
+    let splitFlow = createFlow(newRow, obj.column, "symbols/tubingsmall/rightcornerupSMALL.png", "Start flow", obj.position+2);
 
     container.appendChild(splitFlow);
 
@@ -943,8 +1165,32 @@ function splitActivities(obj){
     else
         splitFlow.setAttribute("source", sourceFlow.getAttribute("source"));
 
-    sourceFlow.setAttribute("position",obj.position +2);
-    sourceFlow.setAttribute("about", recipes[obj.row].flow.process[obj.position +2].name);
+    fillTheGaps();
+
+    /*
+    for (let i = 0; i<splitStack.length; i++){
+        if(splitStack[i].destRecipeId > newRow && splitStack[i].column <= obj.column){
+            let shifter = document.getElementsByClassName("grid-item-row"+newRow);
+            for(let j=0; j<shifter.length; j++){
+                if(parseInt(window.getComputedStyle(shifter[j]).getPropertyValue('grid-column-start')) > splitStack[i].column){
+                    //let column = window.getComputedStyle(shifter[j]).getPropertyValue('grid-column-start');
+                    let connection = createFlow(newRow, splitStack[i].column ,"symbols/tubingsmall/verticalSMALL.png", "connection", -1 );
+                    container.appendChild(connection);
+                }
+            }
+        }
+    }
+*/
+    /*
+    let items = document.getElementsByClassName("grid-item-row"+obj.row);
+    for(let i = items.length-1; i>=0; i--){
+        if(items[i].getAttribute("position") >= obj.position)
+            items[i].setAttribute("position", parseInt(items[i].getAttribute("position"))+2);
+            items[i].setAttribute("about", recipes[obj.row].flow.process[parseInt(items[i].getAttribute("position"))].name);
+    }
+    */
+    //sourceFlow.setAttribute("position",obj.position +2);
+    //sourceFlow.setAttribute("about", recipes[obj.row].flow.process[obj.position +2].name);
     disappear(obj.id);
 
 
@@ -1075,8 +1321,8 @@ function createFlow(row, column, path, about,  pos){
         split_amount.style.position = "absolute";
         split_amount.style.zIndex = "+4";
         split_amount.style.width = "3em";
-        split_amount.style.right = "8px";
-        split_amount.style.top ="30px";
+        split_amount.style.right = "31px";
+        split_amount.style.top ="62px";
         split_amount.onchange = function () {
             setSplitAmount();
         };
@@ -1087,6 +1333,24 @@ function createFlow(row, column, path, about,  pos){
     grid_item.appendChild(elem_container);
 
     return grid_item;
+}
+
+function addBottomImg(elem_container, path, id, n){
+    img = document.createElement("img");
+    img.setAttribute("src", path);
+    img.setAttribute("id", "imgS" +id+"_add"+n);
+    img.setAttribute("class", "img");
+    img.setAttribute("height", "106px");
+
+    img.style.marginLeft = "-1px";
+    img.style.marginRight = "-1px";
+    img.style.marginBottom = "-8px";
+    img.style.marginTop = "-1px";
+
+    elem_container.appendChild(img);
+
+    return img;
+
 }
 
 function setSplitAmount(){
@@ -1145,8 +1409,11 @@ function saveMash(idElement){
         for(let i=0; i<malts.length;i++){
             if(malts[i].name == selectedMaltName){
                 params.malts[n] = malts[i];
-                params.malts[i].ebc = parseFloat(document.getElementById(idElement+"_malt_EBC"+n).value);
-                params.malts[i].weight = parseFloat(document.getElementById(idElement+"_malt_weight"+n).value);
+                let temp1 = idElement+"_malt_EBC"+n;
+                let temp = document.getElementById(idElement+"_malt_EBC"+n).value;
+                let temp3 = parseFloat(temp);
+                params.malts[n].ebc = temp3;
+                params.malts[n].weight = parseFloat(document.getElementById(idElement+"_malt_weight"+n).value);
             }
         }
     }
@@ -1181,9 +1448,9 @@ function saveBoil(idElement){
         for (let i = 0; i < hops.length; i++) {
             if (hops[i].name == selectedHopName) {
                 params.hops[n] = hops[i];
-                params.hops[i].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
-                params.hops[i].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
-                params.hops[i].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
+                params.hops[n].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
+                params.hops[n].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
+                params.hops[n].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
             }
         }
     }
@@ -1221,9 +1488,9 @@ function saveFerment(idElement){
         for (let i = 0; i < hops.length; i++) {
             if (hops[i].name == selectedHopName) {
                 params.hops[n] = hops[i];
-                params.hops[i].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
-                params.hops[i].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
-                params.hops[i].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
+                params.hops[n].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
+                params.hops[n].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
+                params.hops[n].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
             }
         }
     }
@@ -1290,11 +1557,11 @@ function fillMaltsList(idMalt, idEl){
             selectedMalt = malts[i];
         }
     }
-    document.getElementById(idEl+"_EBC"+idMalt).value = selectedMalt.ebc;
-    document.getElementById(idEl+"_weight"+idMalt).value = selectedMalt.weight;
+    document.getElementById(idEl+"_malt_EBC"+idMalt).value = selectedMalt.ebc;
+    document.getElementById(idEl+"_malt_weight"+idMalt).value = selectedMalt.weight;
 }
 
-function fillHopsList(idHop, idEl){
+function fillBoilHopsList(idHop, idEl){
     let hopslist = document.getElementById(idEl+"_boil_hop"+idHop);
     for(let i=0; i<hops.length; i++){
         var opt = document.createElement("option");
@@ -1305,22 +1572,47 @@ function fillHopsList(idHop, idEl){
     let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
     let selectedHop;
 
-    for(let i=0; i<malts.length;i++){
-        if(malts[i].name == selectedHopName){
-            selectedHop = malts[i];
+    for(let i=0; i<hops.length;i++){
+        if(hops[i].name == selectedHopName){
+            selectedHop = hops[i];
         }
     }
-    document.getElementById(idEl+"_EBC"+idHop).value = selectedHop.ebc;
-    document.getElementById(idEl+"_weight"+idHop).value = selectedHop.weight;
+    let temp = idEl+"_hop_aa"+idHop;
+    document.getElementById(idEl+"_hop_aa"+idHop).value = selectedHop.aa;
+    document.getElementById(idEl+"_hop_weight"+idHop).value = selectedHop.weight;
+    document.getElementById(idEl+"_hop_time"+idHop).value = selectedHop.time;
+
+}
+
+function fillFermentHopsList(idHop, idEl){
+
+    let hopslist = document.getElementById(idEl+"_ferment_hop"+idHop);
+    for(let i=0; i<hops.length; i++){
+        var opt = document.createElement("option");
+        opt.innerHTML = hops[i].name;
+        opt.value = hops[i].name;
+        hopslist.appendChild(opt);
+    }
+    let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
+    let selectedHop;
+
+    for(let i=0; i<hops.length;i++){
+        if(hops[i].name == selectedHopName){
+            selectedHop = hops[i];
+        }
+    }
+    document.getElementById(idEl+"_hop_aa"+idHop).value = selectedHop.aa;
+    document.getElementById(idEl+"_hop_weight"+idHop).value = selectedHop.weight;
+    document.getElementById(idEl+"_hop_time"+idHop).value = selectedHop.time;
 }
 
 function setOptionParams(id){
 
     let el = event.currentTarget;
+    let idContainer = el.getAttribute("id").substring(0,3);
     if(el.getAttribute("id").includes("malt")){
 
-        let maltslist = document.getElementById("mash_malt"+id);
-        let selectedMaltName = maltslist.options[maltslist.selectedIndex].value;
+        let selectedMaltName = el.options[el.selectedIndex].value;
         let selectedMalt;
 
         for(let i=0; i<malts.length;i++){
@@ -1329,13 +1621,13 @@ function setOptionParams(id){
             }
         }
 
-        document.getElementById("mash_EBC"+id).value = selectedMalt.ebc;
-        document.getElementById("mash_weight"+id).value = selectedMalt.weight;
 
-    } else if(el.getAttribute("id").includes("boil")){
+        document.getElementById(idContainer+"_malt_EBC"+id).value = selectedMalt.ebc;
+        document.getElementById(idContainer+"_malt_weight"+id).value = selectedMalt.weight;
 
-        let hopslist = document.getElementById("boil_hop0");
-        let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
+    } else if(el.getAttribute("id").includes("boil") || el.getAttribute("id").includes("ferment_hop")){
+
+        let selectedHopName = el.options[el.selectedIndex].value;
         let selectedHop;
 
         for(let i=0; i<hops.length;i++){
@@ -1343,13 +1635,24 @@ function setOptionParams(id){
                 selectedHop = hops[i];
             }
         }
-        document.getElementById("boil_aa0").value = selectedHop.aa;
-        document.getElementById("boil_weight0").value = selectedHop.weight;
-        document.getElementById("boil_time0").value = selectedHop.time;
-    } else if(el.getAttribute("id").includes("ferment")){
-        
+        document.getElementById(idContainer+"_hop_aa"+id).value = selectedHop.aa;
+        document.getElementById(idContainer+"_hop_weight"+id).value = selectedHop.weight;
+        document.getElementById(idContainer+"_hop_time"+id).value = selectedHop.time;
+
+    } else if(el.getAttribute("id").includes("ferment_yeast")){
+        let selectedYeastName = el.options[el.selectedIndex].value;
+        let selectedYeast;
+
+        for(let i=0; i<yeasts.length;i++){
+            if(yeasts[i].name == selectedYeastName){
+                selectedYeast = yeasts[i];
+            }
+        }
+        document.getElementById(idContainer+"_yeast_aa"+id).value = selectedYeast.attenuation;
     }
 
+    recipes[1].flow.brew();
+    update();
 
 }
 
@@ -1360,13 +1663,14 @@ function addElement() {
         let maltsDiv = document.getElementById("mash_malts_"+id);
         lastMalt +=1;
         let newMalt = document.createElement("div");
-        newMalt.setAttribute("id", id+"_malt"+lastMalt);
+        newMalt.setAttribute("id", id+"_malt"+lastMalt+"DIV");
 
         let select = document.createElement("select");
         select.setAttribute("name", "malt"+lastMalt);
         select.setAttribute("id", id+"_mash_malt"+lastMalt);
+        select.setAttribute("num", lastMalt);
         select.onchange= function(){
-            setOptionParams(lastMalt);
+            setOptionParams(select.getAttribute("num"));
         };
 
         let labelButton = document.createElement("label");
@@ -1381,30 +1685,32 @@ function addElement() {
 
 
         newMalt.appendChild(select);
-        newMalt.appendChild(createSelectLabel(id, "EBC", "EBC", lastMalt));
-        newMalt.appendChild(createSelectLabel(id, "weight", "kg", lastMalt));
+        newMalt.appendChild(document.createElement("br"));
+        newMalt.appendChild(createOtherLabel("EBC", "EBC"+lastMalt, id, "malt"));
+        newMalt.appendChild(createOtherLabel("kg", "weight"+lastMalt, id, "malt"));
         newMalt.appendChild(labelButton);
 
         maltsDiv.appendChild(newMalt);
 
         fillMaltsList(lastMalt, id);
     }
-    else if(el.getAttribute("id").includes("hop")){
+    else if(el.getAttribute("id").includes("boil_hop")){
         let hopsDiv = document.getElementById("boil_hops_"+id);
         lastHop +=1;
         let newHop = document.createElement("div");
-        newHop.setAttribute("id", id+"_hop"+lastHop);
+        newHop.setAttribute("id", id+"_boil_hop"+lastHop+"DIV");
 
         let select = document.createElement("select");
         select.setAttribute("name", "hop"+lastHop);
         select.setAttribute("id", id+"_boil_hop"+lastHop);
+        select.setAttribute("num", lastMalt);
         select.onchange= function(){
-            setOptionParams(lastHop);
+            setOptionParams(select.getAttribute("num"));
         };
 
         let labelButton = document.createElement("label");
         let buttonDelete = document.createElement("button");
-        buttonDelete.setAttribute("id", id+"_remove_hop"+lastHop);
+        buttonDelete.setAttribute("id", id+"_remove_boil_hop"+lastHop);
         buttonDelete.innerText = "-";
         buttonDelete.onclick = function (){
             removeElement();
@@ -1414,14 +1720,50 @@ function addElement() {
 
 
         newHop.appendChild(select);
-        newHop.appendChild(createSelectLabel(id, "aa", "AA%", lastHop));
-        newHop.appendChild(createSelectLabel(id, "time", "min", lastHop));
-        newHop.appendChild(createSelectLabel(id, "weight", "g", lastHop));
+        newHop.appendChild(document.createElement("br"));
+        newHop.appendChild(createOtherLabel("AA%", "aa"+lastHop, id, "hop"));
+        newHop.appendChild(createOtherLabel("min", "time"+lastHop, id, "hop"));
+        newHop.appendChild(createOtherLabel("g", "weight"+lastHop, id, "hop"));
         newHop.appendChild(labelButton);
 
         hopsDiv.appendChild(newHop);
 
-        fillHopsList(lastHop, id);
+        fillBoilHopsList(lastHop, id);
+    }else if(el.getAttribute("id").includes("ferment_hop")){
+        let hopsDiv = document.getElementById("ferment_hops_"+id);
+        lastHop +=1;
+        let newHop = document.createElement("div");
+        newHop.setAttribute("id", id+"_ferment_hop"+lastHop+"DIV");
+
+        let select = document.createElement("select");
+        select.setAttribute("name", "hop"+lastHop);
+        select.setAttribute("id", id+"_ferment_hop"+lastHop);
+        select.setAttribute("num", lastMalt);
+        select.onchange= function(){
+            setOptionParams(select.getAttribute("num"));
+        };
+
+        let labelButton = document.createElement("label");
+        let buttonDelete = document.createElement("button");
+        buttonDelete.setAttribute("id", id+"_remove_ferment_hop"+lastHop);
+        buttonDelete.innerText = "-";
+        buttonDelete.onclick = function (){
+            removeElement();
+        };
+
+        labelButton.appendChild(buttonDelete);
+
+
+        newHop.appendChild(select);
+        newHop.appendChild(document.createElement("br"));
+        newHop.appendChild(createOtherLabel("AA%", "aa"+lastHop, id, "hop"));
+        newHop.appendChild(createOtherLabel("giorni", "time"+lastHop, id, "hop"));
+        newHop.appendChild(createOtherLabel("g", "weight"+lastHop, id, "hop"));
+        newHop.appendChild(labelButton);
+
+        hopsDiv.appendChild(newHop);
+
+        fillFermentHopsList(lastHop, id);
     }
 
 }
@@ -1474,9 +1816,27 @@ function createOtherLabel(name, id, element, type, unit){
 
 function removeElement (){
     let el = event.currentTarget;
-    let id = el.getAttribute("id").substring(0,3);
-    let divToDelete = document.getElementById(id+"_"+el.getAttribute("id").substring(11));
-    document.getElementById("mash_malts_"+id).removeChild(divToDelete);
+    let id = el.getAttribute("id");
+    let gridEl = document.getElementById(id.substring(0,3));
+    let rowEl = getRow(gridEl);
+    let divToDelete = document.getElementById(id.substring(0,3)+"_"+id.substring(11)+"DIV");
+    if(id.includes("malt")){
+        document.getElementById("mash_malts_"+id.substring(0,3)).removeChild(divToDelete);
+        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.malts.splice([parseInt(id.substring(11))],1);
+        lastMalt--;
+    }else if(id.includes("boil_hop")){
+        document.getElementById("boil_hops_"+id.substring(0,3)).removeChild(divToDelete);
+        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(id.substring(11))],1);
+        lastHop--;
+    }else if(id.includes("ferment_hop")){
+        document.getElementById("ferment_hops_"+id.substring(0,3)).removeChild(divToDelete);
+        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(id.substring(11))],1);
+        lastHop--;
+    }
+
+    recipes[1].flow.brew();
+    updateData();
+    update();
 
 }
 
@@ -1527,14 +1887,16 @@ function createMashElements(data, id, type){
     p.innerText = "Malti";
     malts.appendChild(p);
     let malt0 = document.createElement("div");
-    malt0.setAttribute("id", id+"_malt0");
+    malt0.setAttribute("id", id+"_malt0DIV");
     let select = document.createElement("select");
     select.setAttribute("name", "malt0");
     select.setAttribute("id", id+"_"+type+"_malt0");
-    select.onchange = function (){ setOptionParams()};
+    select.setAttribute("num", 0);
+    select.onchange = function (){ setOptionParams(select.getAttribute("num"))};
     malt0.appendChild(select);
+    malt0.appendChild(document.createElement("br"));
     malt0.appendChild(createOtherLabel("EBC", "EBC0", id, "malt"));
-    malt0.appendChild(createOtherLabel("kg", "weight0", id, "malt"));
+    malt0.appendChild(createOtherLabel("kg", "weight0", id,"malt"));
     let labelButton = document.createElement("label");
     let buttonRemove = document.createElement("button");
     buttonRemove.setAttribute("id", id+"_remove_malt0");
@@ -1572,18 +1934,20 @@ function createBoilElements(data, id, type){
     p.innerText = "Luppoli";
     hops.appendChild(p);
     let hop0 = document.createElement("div");
-    hop0.setAttribute("id", id+"_hop0");
+    hop0.setAttribute("id", id+"_boil_hop0DIV");
     let select = document.createElement("select");
     select.setAttribute("name", "hop0");
     select.setAttribute("id", id+"_"+type+"_hop0");
-    select.onchange = function (){ setOptionParams()};
+    select.setAttribute("num", 0);
+    select.onchange = function (){ setOptionParams(select.getAttribute("num"))};
     hop0.appendChild(select);
+    hop0.appendChild(document.createElement("br"));
     hop0.appendChild(createOtherLabel("AA%", "aa0", id, "hop"));
     hop0.appendChild(createOtherLabel("min", "time0", id,"hop"));
     hop0.appendChild(createOtherLabel("g", "weight0", id, "hop"));
     let labelButton = document.createElement("label");
     let buttonRemove = document.createElement("button");
-    buttonRemove.setAttribute("id", id+"_remove_hop0");
+    buttonRemove.setAttribute("id", id+"_remove_boil_hop0");
     buttonRemove.onclick = function () {
         removeElement();
     };
@@ -1594,7 +1958,7 @@ function createBoilElements(data, id, type){
     data.appendChild(hops);
     let divAddButton = document.createElement("div");
     let buttonAdd = document.createElement("button");
-    buttonAdd.setAttribute("id", id+"_add_hop");
+    buttonAdd.setAttribute("id", id+"_add_boil_hop");
     buttonAdd.onclick = function () {
         addElement();
     };
@@ -1620,12 +1984,14 @@ function createFermentElements(data, id, type){
     p1.innerText = "Lievito";
     yeasts.appendChild(p1);
     let yeast0 = document.createElement("div");
-    yeast0.setAttribute("id", id+"_yeast0");
+    yeast0.setAttribute("id", id+"_yeast0DIV");
     let select1 = document.createElement("select");
     select1.setAttribute("name", "yeast0");
     select1.setAttribute("id", id+"_"+type+"_yeast0");
-    select1.onchange = function (){ setOptionParams()};
+    select1.setAttribute("num", 0);
+    select1.onchange = function (){ setOptionParams(select1.getAttribute("num"))};
     yeast0.appendChild(select1);
+    yeast0.appendChild(document.createElement("br"));
     yeast0.appendChild(createOtherLabel("AA%", "aa0", id, "yeast"));
     yeasts.appendChild(yeast0);
     data.appendChild(yeasts);
@@ -1636,18 +2002,20 @@ function createFermentElements(data, id, type){
     p2.innerText = "Luppoli in dry hopping";
     hops.appendChild(p2);
     let hop0 = document.createElement("div");
-    hop0.setAttribute("id", id+"_hop0");
+    hop0.setAttribute("id", id+"_fermentadd_hop0DIV");
     let select2 = document.createElement("select");
     select2.setAttribute("name", "hop0");
     select2.setAttribute("id", id+"_"+type+"_hop0");
-    select2.onchange = function (){ setOptionParams()};
+    select2.setAttribute("num", 0);
+    select2.onchange = function (){ setOptionParams(select2.getAttribute("num"))};
     hop0.appendChild(select2);
+    hop0.appendChild(document.createElement("br"));
     hop0.appendChild(createOtherLabel("AA%", "aa0", id, "hop"));
     hop0.appendChild(createOtherLabel("giorni", "time0", id, "hop"));
     hop0.appendChild(createOtherLabel("g", "weight0", id, "hop"));
     let labelButton = document.createElement("label");
     let buttonRemove = document.createElement("button");
-    buttonRemove.setAttribute("id", id+"_remove_hop0");
+    buttonRemove.setAttribute("id", id+"_remove_ferment_hop0");
     buttonRemove.onclick = function () {
         removeElement();
     };
@@ -1658,7 +2026,7 @@ function createFermentElements(data, id, type){
     data.appendChild(hops);
     let divAddButton = document.createElement("div");
     let buttonAdd = document.createElement("button");
-    buttonAdd.setAttribute("id", id+"_add_hop");
+    buttonAdd.setAttribute("id", id+"_add_ferment_hop");
     buttonAdd.onclick = function () {
         addElement();
     };

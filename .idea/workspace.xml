@@ -2,7 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="12b2d251-17ed-4723-beee-fda47c2dfef0" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/addedtube.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/beginSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/doubleintersectionSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/doublesplitSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/leftcornerdownSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/leftcornerupSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/rightcornerdownSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/rightcornerupSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/simpleSELECTED.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/simpleSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/singleintersectiondownSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/singleintersectionupSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/splittedbeginSMALL.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/symbols/tubingsmall/verticalSMALL.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/script.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
     </list>
@@ -17,14 +32,14 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.65330845">
+    <splitter split-orientation="horizontal" split-proportion="0.74333334">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/index.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="730">
-                  <caret line="39" column="71" selection-start-line="39" selection-start-column="71" selection-end-line="39" selection-end-column="71" />
+                <state relative-caret-position="696">
+                  <caret line="42" column="6" selection-start-line="42" selection-start-column="6" selection-end-line="42" selection-end-column="6" />
                 </state>
               </provider>
             </entry>
@@ -32,8 +47,8 @@
           <file leaf-file-name="script.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/script.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="236">
-                  <caret line="1660" column="48" lean-forward="true" selection-start-line="1660" selection-start-column="48" selection-end-line="1660" selection-end-column="48" />
+                <state relative-caret-position="728">
+                  <caret line="1833" column="18" selection-start-line="1833" selection-start-column="18" selection-end-line="1833" selection-end-column="18" />
                 </state>
               </provider>
             </entry>
@@ -41,8 +56,8 @@
           <file leaf-file-name="style.css" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/style.css">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="178">
-                  <caret line="50" column="16" selection-start-line="50" selection-start-column="16" selection-end-line="50" selection-end-column="16" />
+                <state relative-caret-position="425">
+                  <caret line="58" column="33" lean-forward="true" selection-start-line="58" selection-start-column="33" selection-end-line="58" selection-end-column="33" />
                 </state>
               </provider>
             </entry>
@@ -54,8 +69,11 @@
           <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/index.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="670">
-                  <caret line="37" column="51" selection-start-line="37" selection-start-column="51" selection-end-line="37" selection-end-column="51" />
+                <state relative-caret-position="23">
+                  <caret line="2" column="6" lean-forward="true" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+                  <folding>
+                    <element signature="n#style#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -75,36 +93,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>substr</find>
-      <find>includes</find>
-      <find>corner</find>
-      <find>setPara</find>
-      <find>showPa</find>
-      <find>createF</find>
-      <find>showA</find>
-      <find>setObjectSelected</find>
+      <find>addBott</find>
+      <find>Memory</find>
+      <find>destRe</find>
+      <find>simple</find>
+      <find>grid-r</find>
       <find>split</find>
-      <find>Start</find>
-      <find>selectFlowsToMerg</find>
-      <find>ver</find>
-      <find>mergeAc</find>
-      <find>showAct</find>
-      <find>mer</find>
-      <find>tubing</find>
-      <find>showP</find>
-      <find>createWra</find>
-      <find>showWr</find>
-      <find>250</find>
-      <find>200</find>
-      <find>height</find>
-      <find>showDataIn</find>
-      <find>fillM</find>
+      <find>vert</find>
+      <find>deleteA</find>
+      <find>EBC</find>
       <find>showData</find>
-      <find>createL</find>
-      <find>createLa</find>
-      <find>Button</find>
-      <find>showWra</find>
-      <find>update</find>
+      <find>showActivi</find>
+      <find>params</find>
+      <find>flow-buttons</find>
+      <find>delete</find>
+      <find>deleteAct</find>
+      <find>merge</find>
+      <find>color</find>
+      <find>destina</find>
+      <find>destination</find>
+      <find>showAc</find>
+      <find>mergeA</find>
+      <find>splitStack</find>
+      <find>setS</find>
+      <find>splitActiv</find>
+      <find>setOption</find>
+      <find>font</find>
+      <find>last</find>
+      <find>lastM</find>
+      <find>removeEle</find>
+      <find>removeElement</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -128,32 +146,44 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="NodeModulesDirectoryManager">
-    <handled-path value="$PROJECT_DIR$/node/deps/npm/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/internal-modules/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/module-require-symlink/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/module-require/child/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/module-require/not-found/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/module-require/parent/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/resolve-paths/default/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/resolve-paths/defined/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/test/fixtures/test-module-loading-globalpaths/local-pkg/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/tools/doc/node_modules" />
-    <handled-path value="$PROJECT_DIR$/node/tools/node_modules" />
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1151" />
-    <option name="y" value="68" />
-    <option name="width" value="1876" />
-    <option name="height" value="1198" />
+    <option name="x" value="116" />
+    <option name="y" value="51" />
+    <option name="width" value="2361" />
+    <option name="height" value="1130" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes />
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="HomeBrewerFlow" type="b2602c69:ProjectViewProjectNode" />
+              <item name="HomeBrewerFlow" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="HomeBrewerFlow" type="b2602c69:ProjectViewProjectNode" />
+              <item name="HomeBrewerFlow" type="462c0819:PsiDirectoryNode" />
+              <item name="symbols" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="HomeBrewerFlow" type="b2602c69:ProjectViewProjectNode" />
+              <item name="HomeBrewerFlow" type="462c0819:PsiDirectoryNode" />
+              <item name="symbols" type="462c0819:PsiDirectoryNode" />
+              <item name="tubingsmall" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
@@ -168,14 +198,16 @@
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/symbols" />
-      <recent name="$PROJECT_DIR$/node_modules/homebrewlib" />
-      <recent name="$PROJECT_DIR$" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/symbols/tubingsmall" />
       <recent name="$PROJECT_DIR$/symbols/tubing" />
       <recent name="$PROJECT_DIR$/symbols" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/symbols/tubingsmall" />
+      <recent name="$PROJECT_DIR$/symbols" />
+      <recent name="$PROJECT_DIR$/node_modules/homebrewlib" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -244,29 +276,39 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="135901000" />
+    <option name="totallyTimeSpent" value="190359000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1151" y="68" width="1876" height="1198" extended-state="0" />
+    <frame x="116" y="51" width="2361" height="1130" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.15623435" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.08632479" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32970026" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.15623435" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32788375" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.32970026" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -280,49 +322,20 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/script.js</url>
-          <line>345</line>
+          <line>408</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/script.js</url>
+          <line>236</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="5" />
+      <option name="time" value="7" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="552">
-          <caret line="23" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1248">
-          <caret line="52" column="7" selection-start-line="52" selection-start-column="7" selection-end-line="52" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="672">
-          <caret line="28" column="108" lean-forward="true" selection-start-line="28" selection-start-column="108" selection-end-line="28" selection-end-column="108" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2940">
-          <caret line="196" column="17" selection-start-line="196" selection-start-column="12" selection-end-line="196" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="975">
-          <caret line="65" column="19" selection-start-line="65" selection-start-column="19" selection-end-line="65" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/script.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4485">
@@ -605,31 +618,52 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/homebrewlib/index.js">
+    <entry file="file://$PROJECT_DIR$/node_modules/homebrewlib/brew.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/homebrewlib/constants.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/homebrewlib/conversions.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/homebrewlib/equipment.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="733">
-          <caret line="176" column="39" lean-forward="true" selection-start-line="176" selection-start-column="39" selection-end-line="176" selection-end-column="39" />
+        <state>
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/style.css">
+    <entry file="file://$PROJECT_DIR$/node_modules/homebrewlib/flow.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/homebrewlib/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="50" column="16" selection-start-line="50" selection-start-column="16" selection-end-line="50" selection-end-column="16" />
+        <state relative-caret-position="451">
+          <caret line="277" column="45" lean-forward="true" selection-start-line="277" selection-start-column="45" selection-end-line="277" selection-end-column="45" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="730">
-          <caret line="39" column="71" selection-start-line="39" selection-start-column="71" selection-end-line="39" selection-end-column="71" />
+        <state relative-caret-position="696">
+          <caret line="42" column="6" selection-start-line="42" selection-start-column="6" selection-end-line="42" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/style.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="58" column="33" lean-forward="true" selection-start-line="58" selection-start-column="33" selection-end-line="58" selection-end-column="33" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/script.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="1660" column="48" lean-forward="true" selection-start-line="1660" selection-start-column="48" selection-end-line="1660" selection-end-column="48" />
+        <state relative-caret-position="728">
+          <caret line="1833" column="18" selection-start-line="1833" selection-start-column="18" selection-end-line="1833" selection-end-column="18" />
         </state>
       </provider>
     </entry>
