@@ -590,6 +590,12 @@ function showDataInActivity(type, position, row, id){
 
                 params = recipe.process[position].params;
             }
+
+            document.getElementById(id+"_sucrose").value = params.prime[0].qty;
+            document.getElementById(id+"_dextrose").value = params.prime[1].qty;
+            document.getElementById(id+"_extract").value = params.prime[2].qty;
+            document.getElementById(id+"_speise").value = params.prime[3].qty;
+            document.getElementById(id+"_bottling_loss").value = params.bottling_loss;
             break;
         }
     }
@@ -1050,22 +1056,27 @@ function deleteActivity(obj){
 function fillTheGaps(){
     let container = document.getElementById("grid-container");
     let elements = container.children;
+    let columns = [];
 
     for(let i = 0; i<elements.length; i++){
-        if(document.getElementById("imgS"+elements[i].getAttribute("id").substring(2)).src.includes("singleintersection")){
-            let column1 = parseInt(window.getComputedStyle(elements[i]).getPropertyValue("grid-column-start"));
-            let row = parseInt(window.getComputedStyle(elements[i]).getPropertyValue("grid-row-start"));
-            for(let j=0;j<elements.length;j++){
-                let column2 = parseInt(window.getComputedStyle(elements[j]).getPropertyValue("grid-column-start"));
-                //let row2 = parseInt(window.getComputedStyle(elements[j]).getPropertyValue("grid-row-start"));
-                if(column1 === column2 && row === row+1+j){
-                    if(elements[j] == null){
-                        let connection = createFlow(row+1, column1 ,"symbols/tubingsmall/verticalSMALL.png", "connection", -1 );
+        let temp = getImage(elements[i]).src;
+        if(getImage(elements[i]).src.includes("singleintersection") || getImage(elements[i]).src.includes("splittedbegin")){
+            columns[i] = getColumn(elements[i]);
+            let row = getRow(elements[i]);
+            for(let j = 0; j<elements.length; j++){
+                if(columns[i] === getColumn(elements[j]) && row < getRow(elements[j])) {
+                    if (getImage(elements[j]).src.includes("simple")) {
+                        let connection = createFlow(row, columns[i], "symbols/tubingsmall/doubleintersectionSMALL.png", "connection", -1);
                         container.appendChild(connection);
-                    }else if(document.getElementById("imgS" +elements[j].getAttribute("id").substring(2)).src.includes("simple")){
-                        let connection = createFlow(row+1, column1 ,"symbols/tubingsmall/doubleintersectionSMALL.png", "connection", -1 );
-                        container.appendChild(connection);
-                    }
+                        columns.splice(columns.length-1, 1);
+                    } else if (getImage(elements[j]).src.includes("corner"))
+                        columns.splice(columns.length-1, 1);
+                }
+            }
+            for(let i = 0; i<columns.length; i++){
+                for (let j=1; j<recipes.length;j++){
+                    let connection = createFlow(j, columns[i], "symbols/tubingsmall/verticalSMALL.png", "connection", -1);
+                    container.appendChild(connection);
                 }
             }
         }
@@ -1168,9 +1179,9 @@ function splitActivities(obj){
     else
         splitFlow.setAttribute("source", sourceFlow.getAttribute("source"));
 
-    fillTheGaps();
+    //fillTheGaps();
 
-    /*
+
     for (let i = 0; i<splitStack.length; i++){
         if(splitStack[i].destRecipeId > newRow && splitStack[i].column <= obj.column){
             let shifter = document.getElementsByClassName("grid-item-row"+newRow);
@@ -1183,7 +1194,7 @@ function splitActivities(obj){
             }
         }
     }
-*/
+
     /*
     let items = document.getElementsByClassName("grid-item-row"+obj.row);
     for(let i = items.length-1; i>=0; i--){
@@ -1502,12 +1513,21 @@ function saveFerment(idElement){
     update();
 }
 
-function saveBottle(){
+function saveBottle(idElement){
     let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
     let position = document.getElementById(idElement).getAttribute("position");
 
     let recipe = recipes[row].flow;
     let params = recipe.process[position].params;
+
+    params.prime[0].qty = parseFloat(document.getElementById(id+"_sucrose").value);
+    params.prime[1].qty = parseFloat(document.getElementById(id+"_dextrose").value);
+    params.prime[2].qty = parseFloat(document.getElementById(id+"_extract").value);
+    params.prime[3].qty = parseFloat(document.getElementById(id+"_speise").value);
+    params.bottling_loss = parseFloat(document.getElementById(id+"_bottling_loss").value);
+
+    recipe.brew();
+    update();
 }
 
 function updateData(){
@@ -1870,6 +1890,12 @@ function createWrapper(type, pos, row, id){
         }
         case activity.BOTTLING:{
             createBottleElements(data, id);
+            recipes[row].flow.process[pos].params = { prime: [
+                    { type: 'Sucrose',  qty: 0.0},
+                    { type: 'Dextrose', qty: 0.0},
+                    { type: 'Extract',  qty: 0.0},
+                    { type: 'Speise',   qty: 0.0}
+                ], bottling_loss: 0.0};
             break;
         }
     }
@@ -2047,15 +2073,15 @@ function createFermentElements(data, id, type){
 }
 
 function createBottleElements(data, id){
-    data.appendChild(createLabel("Sucrose", "temp", id, "g/l"));
+    data.appendChild(createLabel("Sucrose", "sucrose", id, "g/l"));
     data.appendChild(document.createElement("br"));
-    data.appendChild(createLabel("Dextrose", "temp", id, "g/l"));
+    data.appendChild(createLabel("Dextrose", "dextrose", id, "g/l"));
     data.appendChild(document.createElement("br"));
-    data.appendChild(createLabel("Extract", "temp", id, "g/l"));
+    data.appendChild(createLabel("Extract", "extract", id, "g/l"));
     data.appendChild(document.createElement("br"));
-    data.appendChild(createLabel("Speise", "temp", id, "l"));
+    data.appendChild(createLabel("Speise", "speise", id, "l"));
     data.appendChild(document.createElement("br"));
-    data.appendChild(createLabel("Perdite", "boil_loss", id, "l"));
+    data.appendChild(createLabel("Perdite", "bottling_loss", id, "l"));
 }
 
 

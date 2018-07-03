@@ -30,8 +30,8 @@
           <file leaf-file-name="script.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/script.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="386">
-                  <caret line="1045" column="17" selection-start-line="1045" selection-start-column="17" selection-end-line="1045" selection-end-column="17" />
+                <state relative-caret-position="320">
+                  <caret line="1181" column="6" selection-start-line="1181" selection-start-column="6" selection-end-line="1181" selection-end-column="6" />
                 </state>
               </provider>
             </entry>
@@ -52,7 +52,7 @@
           <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/index.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-1">
+                <state relative-caret-position="-288">
                   <caret line="1" column="6" lean-forward="true" selection-start-line="1" selection-start-column="6" selection-end-line="1" selection-end-column="6" />
                   <folding>
                     <element signature="n#style#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -76,9 +76,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>destRe</find>
-      <find>simple</find>
-      <find>grid-r</find>
       <find>split</find>
       <find>vert</find>
       <find>deleteA</find>
@@ -106,6 +103,9 @@
       <find>removeElement</find>
       <find>false</find>
       <find>true</find>
+      <find>showDataIn</find>
+      <find>Img</find>
+      <find>fillT</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -132,8 +132,8 @@
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="116" />
-    <option name="y" value="51" />
+    <option name="x" value="160" />
+    <option name="y" value="117" />
     <option name="width" value="2361" />
     <option name="height" value="1130" />
   </component>
@@ -259,10 +259,10 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="191514000" />
+    <option name="totallyTimeSpent" value="194287000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="116" y="51" width="2361" height="1130" extended-state="0" />
+    <frame x="160" y="117" width="2361" height="1130" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.08632479" />
@@ -645,8 +645,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/script.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="386">
-          <caret line="1045" column="17" selection-start-line="1045" selection-start-column="17" selection-end-line="1045" selection-end-column="17" />
+        <state relative-caret-position="320">
+          <caret line="1181" column="6" selection-start-line="1181" selection-start-column="6" selection-end-line="1181" selection-end-column="6" />
         </state>
       </provider>
     </entry>
