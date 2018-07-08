@@ -757,28 +757,28 @@ function addActivity(obj, activityType){
             recipe.add_mash();
             //showData(activity.MASHING, obj.position+1, obj.row);
             flowType = flow.POST_MASH_WORT;
-            path = "symbols/tubingsmall/mash.png";
+            path = "symbols/tubing/mash.png";
             break;
         }
         case activity.BOILING: {
             recipe.add_boil();
             //showData(activity.BOILING, obj.position+1, obj.row);
             flowType = flow.POST_BOIL_WORT;
-            path = "symbols/tubingsmall/boil.png";
+            path = "symbols/tubing/boil.png";
             break;
         }
         case activity.FERMENTING: {
             recipe.add_ferment();
             //showData(activity.FERMENTING, obj.position+1, obj.row);
             flowType = flow.FLAT_BEER;
-            path = "symbols/tubingsmall/ferment.png";
+            path = "symbols/tubing/ferment.png";
             break;
         }
         case activity.BOTTLING:{
             recipe.add_bottle();
             //showData(activity.BOTTLING, obj.position+1, obj.row);
             flowType = flow.CARBONATED_BEER;
-            path = "symbols/tubingsmall/bottle.png";
+            path = "symbols/tubing/bottle.png";
             break;
         }
     }
@@ -791,7 +791,7 @@ function addActivity(obj, activityType){
     let newActivity = createActivity(obj.row, obj.column + 1, path,  activityType, obj.position);
     //crea un nuovo stato con id incrementato
     obj.position++;
-    let newState = createFlow(obj.row, obj.column + 2, "symbols/tubingsmall/simpleSMALL.png", flowType, obj.position);
+    let newState = createFlow(obj.row, obj.column + 2, "symbols/tubing/simpleSMALL.png", flowType, obj.position);
 
     container.appendChild(newActivity);
     container.appendChild(newState);
@@ -826,9 +826,9 @@ function colorFlowsToMerge(column, selection){
         for (let i = 0; i < targetFlows.length; i++) {
             let id = targetFlows[i].getAttribute("id").substring(2);
             if(selection)
-                document.getElementById("imgS"+id).src = "symbols/tubingsmall/simpleSELECTED.png";
+                document.getElementById("imgS"+id).src = "symbols/tubing/simpleSELECTED.png";
             else
-                document.getElementById("imgS"+id).src = "symbols/tubingsmall/simpleSMALL.png";
+                document.getElementById("imgS"+id).src = "symbols/tubing/simpleSMALL.png";
         }
     }
 
@@ -888,13 +888,13 @@ function mergeActivities(){
         }
 
         if(parseInt(rowSelectedFlow) < styleFlowToMerge.getPropertyValue('grid-row-start')){
-            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerupSMALL.png";
-            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectiondownSMALL.png";
-            //let img = addBottomImg(selectedFlow, "symbols/tubingsmall/addedtube.png", selectedFlow.getAttribute("id").substring(2), 1);
-            //img.style.marginLeft = "0px";
+            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerupSMALL.png";
+            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubing/singleintersectiondownSMALL.png";
+            addBottomImg(selectedFlow, "symbols/tubing/verticalSMALL.png", selectedFlow.getAttribute("id").substring(2), 1);
+
         }else{
-            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubingsmall/leftcornerdownSMALL.png";
-            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubingsmall/singleintersectionupSMALL.png";
+            document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerdownSMALL.png";
+            document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubing/singleintersectionupSMALL.png";
         }
         if(Math.abs(rowSelectedFlow-rowFlowToMerge)>1){
             let min = Math.min(rowSelectedFlow, rowFlowToMerge)
@@ -903,10 +903,10 @@ function mergeActivities(){
                 let elementsCurrentRow = document.getElementsByClassName("grid-item-row"+currentRow);
                 for(let j= 0; j<elementsCurrentRow.length;j++){
                     if(parseInt(window.getComputedStyle(elementsCurrentRow[j]).getPropertyValue("grid-column-start")) === column){
-                        let connection = createFlow(currentRow, column ,"symbols/tubingsmall/doubleintersectionSMALL.png", "connection", -1 );
+                        let connection = createFlow(currentRow, column ,"symbols/tubing/doubleintersectionSMALL.png", "connection", -1 );
                         container.appendChild(connection);
                     }else{
-                        let connection = createFlow(currentRow, column ,"symbols/tubingsmall/verticalSMALL.png", "connection", -1 );
+                        let connection = createFlow(currentRow, column ,"symbols/tubing/verticalSMALL.png", "connection", -1 );
                         container.appendChild(connection);
                     }
 
@@ -981,11 +981,11 @@ function deleteActivity(obj){
                 let id = items[i].getAttribute("id");
                 let img = document.getElementById("imgS"+id.substring(2));
                 if(img.src.includes("begin"))
-                    img.src = "symbols/tubingsmall/beginSMALL.png";
-                else if (img.src.includes("simple"))
-                    img.src = "symbols/tubingsmall/simpleSMALL.png";
+                    img.src = "symbols/tubing/beginSMALL.png";
+                else if (img.src.includes("simple") || img.src.includes("singleintersection"))
+                    img.src = "symbols/tubing/simpleSMALL.png";
                 else
-                    img.src = "symbols/tubingsmall/rightcornerupSMALL.png";
+                    img.src = "symbols/tubing/rightcornerupSMALL.png";
 
             }
         }
@@ -1031,7 +1031,7 @@ function deleteActivity(obj){
             let el = document.getElementById(items[i].getAttribute("destination"));
             if(obj.row == window.getComputedStyle(items[i]).getPropertyValue('grid-row-start')){
                 let img = document.getElementById("imgS"+el.getAttribute("id").substring(2));
-                img.src = "symbols/tubingsmall/simpleSMALL.png"
+                img.src = "symbols/tubing/simpleSMALL.png"
             }
         }
     }
@@ -1057,6 +1057,7 @@ function fillTheGaps(){
     let container = document.getElementById("grid-container");
     let elements = container.children;
     let columns = [];
+    let rows = [];
 
     for(let i = 0; i<elements.length; i++){
         let temp = getImage(elements[i]).src;
@@ -1066,18 +1067,22 @@ function fillTheGaps(){
             for(let j = 0; j<elements.length; j++){
                 if(columns[i] === getColumn(elements[j]) && row < getRow(elements[j])) {
                     if (getImage(elements[j]).src.includes("simple")) {
-                        let connection = createFlow(row, columns[i], "symbols/tubingsmall/doubleintersectionSMALL.png", "connection", -1);
+                        let connection = createFlow(row, columns[i], "symbols/tubing/doubleintersectionSMALL.png", "connection", -1);
                         container.appendChild(connection);
                         columns.splice(columns.length-1, 1);
-                    } else if (getImage(elements[j]).src.includes("corner"))
-                        columns.splice(columns.length-1, 1);
+                    } else if (getImage(elements[j]).src.includes("corner")){
+                        if(Math.abs(row-getRow(elements[j]))<=1)
+                            columns.splice(columns.length-1, 1);
+                        for (let z=row+1; z<getRow(elements[j]);z++){
+                            let temp = columns[i];
+                            if(columns[i] != null){
+                                let connection = createFlow(z, columns[i], "symbols/tubing/verticalSMALL.png", "connection", -1);
+                                container.appendChild(connection);
+                            }
+                        }
+                    }
                 }
-            }
-            for(let i = 0; i<columns.length; i++){
-                for (let j=1; j<recipes.length;j++){
-                    let connection = createFlow(j, columns[i], "symbols/tubingsmall/verticalSMALL.png", "connection", -1);
-                    container.appendChild(connection);
-                }
+
             }
         }
     }
@@ -1156,17 +1161,17 @@ function splitActivities(obj){
 
     let img = document.getElementById("imgS" + obj.id.substring(2));
     if(img.src.includes("simple")) {
-        img.src = "symbols/tubingsmall/singleintersectiondownSMALL.png";
-        //addBottomImg(document.getElementById(obj.id), "symbols/tubingsmall/addedtube.png", obj.id.substring(2,3), 1);
+        img.src = "symbols/tubing/singleintersectiondownSMALL.png";
+        addBottomImg(document.getElementById(obj.id), 'url("symbols/tubing/verticalSMALL.png")', obj.id.substring(2,3), 1);
 
     }else if(img.src.includes("begin")){
-        img.src = "symbols/tubingsmall/splittedbeginSMALL.png";
+        img.src = "symbols/tubing/splittedbeginSMALL.png";
     }
     else
-        img.src = "symbols/tubingsmall/doublesplitSMALL.png";
-    img.style.height = "280px";
+        img.src = "symbols/tubing/doublesplitSMALL.png";
+    img.style.height = "300px";
 
-    let splitFlow = createFlow(newRow, obj.column, "symbols/tubingsmall/rightcornerupSMALL.png", "Start flow", obj.position+2);
+    let splitFlow = createFlow(newRow, obj.column, "symbols/tubing/rightcornerupSMALL.png", "Start flow", obj.position+2);
 
     container.appendChild(splitFlow);
 
@@ -1179,9 +1184,9 @@ function splitActivities(obj){
     else
         splitFlow.setAttribute("source", sourceFlow.getAttribute("source"));
 
-    //fillTheGaps();
+    fillTheGaps();
 
-
+/*
     for (let i = 0; i<splitStack.length; i++){
         if(splitStack[i].destRecipeId > newRow && splitStack[i].column <= obj.column){
             let shifter = document.getElementsByClassName("grid-item-row"+newRow);
@@ -1194,7 +1199,7 @@ function splitActivities(obj){
             }
         }
     }
-
+*/
     /*
     let items = document.getElementsByClassName("grid-item-row"+obj.row);
     for(let i = items.length-1; i>=0; i--){
@@ -1246,7 +1251,7 @@ function createActivity(row, column, path, about, pos){
     img.setAttribute("src", path);
     img.setAttribute("id", "imgS" +lastCreatedElement);
     img.setAttribute("class", "img");
-    img.setAttribute("height", "280px");
+    img.setAttribute("height", "300px");
 
     img.style.marginLeft = "-1px";
     img.style.marginRight = "-1px";
@@ -1302,7 +1307,7 @@ function createFlow(row, column, path, about,  pos){
     img.setAttribute("src", path);
     img.setAttribute("id", "imgS" +lastCreatedElement);
     img.setAttribute("class", "img");
-    img.setAttribute("height", "280px");
+    img.setAttribute("height", "300px");
 
     img.style.marginLeft = "-1px";
     img.style.marginRight = "-1px";
@@ -1335,8 +1340,8 @@ function createFlow(row, column, path, about,  pos){
         split_amount.style.position = "absolute";
         split_amount.style.zIndex = "+4";
         split_amount.style.width = "3em";
-        split_amount.style.right = "31px";
-        split_amount.style.top ="62px";
+        split_amount.style.right = "5px";
+        split_amount.style.top ="30px";
         split_amount.onchange = function () {
             setSplitAmount();
         };
@@ -1350,20 +1355,15 @@ function createFlow(row, column, path, about,  pos){
 }
 
 function addBottomImg(elem_container, path, id, n){
-    img = document.createElement("img");
-    img.setAttribute("src", path);
-    img.setAttribute("id", "imgS" +id+"_add"+n);
-    img.setAttribute("class", "img");
-    img.setAttribute("height", "106px");
+    let div = document.createElement("div");
+    div.style.height = "80px";
 
-    img.style.marginLeft = "-1px";
-    img.style.marginRight = "-1px";
-    img.style.marginBottom = "-8px";
-    img.style.marginTop = "-1px";
+    div.style.backgroundImage = path;
+    div.style.backgroundRepeat = "repeat";
+    div.style.backgroundSize = "222.5px";
 
-    elem_container.appendChild(img);
+    elem_container.appendChild(div);
 
-    return img;
 
 }
 

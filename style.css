@@ -6,7 +6,6 @@
 }
 #grid-container > div {
     text-align: center;
-    font-size: 30px;
     background: none;
     display: inline-block;
 
@@ -18,7 +17,6 @@
 }
 #elem-container > div {
     text-align: center;
-    font-size: 30px;
     background: none;
 
 }
@@ -56,12 +54,12 @@
 .params{
     grid-column: 1/1;
     grid-row: 1/1;
-    padding: 10px 10px 10px 10px;
-    margin: 90px 15px 0 15px;
+    padding: 20px 10px 10px 10px;
+    margin: 90px 25px 40px 25px;
     display: none;
-    font-size: small;
+    font-size: 9pt;
     text-align: center;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.85);
     font-family: Arial, Verdana, Helvetica;
 }
 
@@ -69,12 +67,12 @@
     grid-column: 1/1;
     grid-row: 1/1;
     padding: 10px 10px 10px 10px;
-    margin: 90px 0 0 0;
+    margin: 90px -10px 10px -10px;
     display: none;
-    font-size: small;
+    font-size: 9pt;
     text-align: left;
     z-index: +4;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.85);
     font-family: Arial, Verdana, Helvetica;
 }
 
@@ -133,20 +131,12 @@
     width: 30px;
 }
 p{
-    font-size: small;
     margin: 0 0 0 0;
     padding: 0 0 0 0;
 }
 
 h1{
     font-family: Arial, Verdana, Helvetica;
-}
-
-
-.param{
-    font-size: small;
-    font-family: Arial, Verdana, Helvetica;
-    text-align: left;
 }
 
 #malt0{
