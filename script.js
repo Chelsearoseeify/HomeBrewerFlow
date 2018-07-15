@@ -620,149 +620,6 @@ function showDataInActivity(type, position, row, id){
     }
 }
 
-/*
-function showData(ident, position, row){
-    let wrapper = document.getElementById("wrapper_"+ident);
-    if(position == null && row == null ){
-        row = window.getComputedStyle(event.currentTarget).getPropertyValue('grid-row-start');
-        position = event.currentTarget.getAttribute("position");
-    }
-    //wrapper.setAttribute("ref-pos", position);
-    //wrapper.setAttribute("ref-row", row);
-    var visible = wrapper.getAttribute("about");
-    if(visible === "false") {
-        let data = document.getElementById("data_"+ident);
-        data.style.display = "inline";
-        wrapper.setAttribute("about", "true");
-    }
-
-    let recipe = recipes[row].flow;
-
-    switch(ident){
-        case activity.MASHING:{
-            let params;
-            if(recipe.process[position].name === "Split"){
-                params = recipe.process[position+2].params;
-            } else{
-
-                params = recipe.process[position].params;
-            }
-            document.getElementById(ident+"_mash_water").value = params.mash_water;
-            document.getElementById(ident+"_sparge_water").value = params.sparge_water;
-            document.getElementById(ident+"_efficiency").value = params.mash_efficiency_weight;
-            document.getElementById(ident+"_mash_loss").value = params.mash_loss;
-
-            let maltslist = document.getElementById(ident+"_malt0");
-            for(let i=0; i<malts.length; i++){
-                var opt = document.createElement("option");
-                opt.innerHTML = malts[i].name;
-                opt.value = malts[i].name;
-                maltslist.appendChild(opt);
-            }
-            let selectedMaltName = maltslist.options[maltslist.selectedIndex].value;
-            let selectedMalt;
-
-            for(let i=0; i<malts.length;i++){
-                if(malts[i].name == selectedMaltName){
-                    selectedMalt = malts[i];
-                }
-            }
-            document.getElementById(ident+"_EBC0").value = selectedMalt.ebc;
-            document.getElementById(ident+"_weight0").value = selectedMalt.weight;
-            break;
-        }
-        case activity.BOILING:{
-            let params;
-            if(recipe.process[position].name === "Split"){
-                params = recipe.process[position+2].params;
-            } else{
-
-                params = recipe.process[position].params;
-            }
-
-            document.getElementById(ident+"_time").value = params.time;
-            document.getElementById(ident+"_whirpool").value = params.whirlpool;
-            document.getElementById(ident+"_sugar").value = params.sugar_addition.qty;
-            document.getElementById(ident+"_water").value = params.water_addition;
-            document.getElementById(ident+"_boil_loss").value = params.boil_loss;
-            let hopslist = document.getElementById(ident+"_hop0");
-            for(let i=0; i<hops.length; i++){
-                var opt = document.createElement("option");
-                opt.innerHTML = hops[i].name;
-                opt.value = hops[i].name;
-                hopslist.appendChild(opt);
-            }
-            let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
-            let selectedHop;
-
-            for(let i=0; i<hops.length;i++){
-                if(hops[i].name == selectedHopName){
-                    selectedHop = hops[i];
-                }
-            }
-            document.getElementById(ident+"_aa0").value = selectedHop.aa;
-            document.getElementById(ident+"_weight0").value = selectedHop.weight;
-            document.getElementById(ident+"_time0").value = selectedHop.time;
-            break;
-        }
-        case activity.FERMENTING:{
-            let params;
-            if(recipe.process[position].name === "Split"){
-                params = recipe.process[position+2].params;
-            } else{
-
-                params = recipe.process[position].params;
-            }
-
-            let yeastslist = document.getElementById(ident+"_yeast0");
-            for(let i=0; i<yeasts.length; i++){
-                var opt = document.createElement("option");
-                opt.innerHTML = yeasts[i].name;
-                opt.value = yeasts[i].name;
-                yeastslist.appendChild(opt);
-            }
-            let selectedYeastName = yeastslist.options[yeastslist.selectedIndex].value;
-            let selectedYeast;
-
-            for(let i=0; i<yeasts.length;i++){
-                if(yeasts[i].name == selectedYeastName){
-                    selectedYeast = yeasts[i];
-                }
-            }
-            document.getElementById(ident+"_aa0").value = selectedYeast.attenuation;
-            document.getElementById(ident+"_temp").value = params.temperature;
-            document.getElementById(ident+"_water").value = params.water_addition;
-            document.getElementById(ident+"_sugar").value = params.sugar_addition.qty;
-            break;
-        }
-        case activity.BOTTLING:{
-            let params;
-            if(recipe.process[position].name === "Split"){
-                params = recipe.process[position+2].params;
-            } else{
-
-                params = recipe.process[position].params;
-            }
-            break;
-        }
-    }
-}
-
-function hideData(ident){
-    if(ident == null) {
-        let button = event.currentTarget;
-        ident = button.getAttribute("id").substring(6);
-    }
-    let space = document.getElementById("wrapper_"+ident);
-    var visible = space.getAttribute("about");
-    if(visible === "true") {
-        let data = document.getElementById("data_"+ident);
-        data.style.display = "none";
-        space.setAttribute("about", "false");
-    }
-}
-*/
-
 
 //aggiunge un'attivit‡
 function addActivity(obj, activityType){
@@ -881,7 +738,7 @@ function mergeActivities(){
         if(parseInt(rowSelectedFlow) < styleFlowToMerge.getPropertyValue('grid-row-start')){
             document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerupSMALL.png";
             document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubing/singleintersectiondownSMALL.png";
-            //addBottomImg(selectedFlow, "symbols/tubing/verticalSMALL.png", selectedFlow.getAttribute("id").substring(2), 1);
+            addBottomImg(selectedFlow, 'url("symbols/tubing/verticalSMALL.png")');
 
         }else{
             document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerdownSMALL.png";
@@ -953,10 +810,9 @@ function deleteActivity(obj){
             //let currentPos = elementsInARow[i].getAttribute("position");
             //if(currentPos >= obj.position){
             container.removeChild(document.getElementById(elementsInARow[i].getAttribute("id")));
-            /*
             if(i%2 === 0)
                 recipes[obj.row].removeLastElementFromStack();
-                */
+
             //}
         }
         recipes.splice(obj.row, 1);
@@ -1006,6 +862,8 @@ function deleteActivity(obj){
                     let recipeToDelete = document.getElementsByClassName("grid-item-row" + rowToDelete);
                     for (let i = recipeToDelete.length - 1; i >= 0; i--) {
                         container.removeChild(document.getElementById(recipeToDelete[i].getAttribute("id")));
+                        if(i%2 === 0)
+                            recipes[obj.row].removeLastElementFromStack();
                     }
 
                     for (let i = rowToDelete + 1; i <= recipes.length; i++) {
@@ -1034,10 +892,9 @@ function deleteActivity(obj){
         let currentPos = elementsInARow[i].getAttribute("position");
         if(currentPos >= obj.position){
         container.removeChild(document.getElementById(elementsInARow[i].getAttribute("id")));
-        /*
         if(i%2 === 0)
             recipes[obj.row].removeLastElementFromStack();
-            */
+
         }
     }
 
@@ -1156,7 +1013,7 @@ function splitActivities(obj){
     let img = document.getElementById("imgS" + obj.id.substring(2));
     if(img.src.includes("simple")) {
         img.src = "symbols/tubing/singleintersectiondownSMALL.png";
-        //addBottomImg(document.getElementById(obj.id), 'url("symbols/tubing/verticalSMALL.png")', obj.id.substring(2,3), 1);
+        addBottomImg(document.getElementById(obj.id), 'url("symbols/tubing/verticalSMALL.png")');
 
     }else if(img.src.includes("begin")){
         img.src = "symbols/tubing/splittedbeginSMALL.png";
@@ -1350,10 +1207,10 @@ function createFlow(row, column, path, about,  pos){
     return grid_item;
 }
 
-function addBottomImg(elem_container, path, id, n){
+function addBottomImg(elem_container, path){
     let div = document.createElement("div");
     div.style.height = "inherit";
-    div.style.minHeight = "5px";
+    div.style.minHeight = "30px";
 
     div.style.backgroundImage = path;
     div.style.backgroundRepeat = "repeat";
