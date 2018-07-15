@@ -251,7 +251,7 @@ function showFlowButton(obj){
     }
 
     let temp = document.getElementById("imgS"+obj.id.substring(2)).src;
-    if(!(temp.includes("corner") || obj.about.includes("Merged"))){
+    if(!temp.includes("corner") && !obj.about.includes("Merged")){
         let buttonMerge = document.createElement("button");
         let mergeImg = document.createElement("img");
         mergeImg.setAttribute("src", "symbols/icon/merge-black.png");
@@ -275,7 +275,7 @@ function showFlowButton(obj){
         };
 
         item.appendChild(buttonMerge);
-    }else{
+    }else if (!obj.about.includes("Merged")){
         let buttonDelete = document.createElement("button");
         let deleteImg = document.createElement("img");
         deleteImg.setAttribute("src", "symbols/icon/delete-black.png");
@@ -448,13 +448,13 @@ function showWrapper(obj){
 }
 
 function updateParams(obj){
-    document.getElementById("vol-"+obj.id).innerText = "Volume: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.vol * 1000) / 1000;
+    document.getElementById("vol-"+obj.id).innerText = "Volume: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.vol * 100) / 100;
     document.getElementById("og-"+obj.id).innerText = "Densità originale: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.og * 1000) / 1000;
     document.getElementById("fg-"+obj.id).innerText = "Densità finale: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.fg * 1000) / 1000;
-    document.getElementById("abv-"+obj.id).innerText = "Alcol (vol): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.abv * 1000) / 1000;
-    document.getElementById("ebc-"+obj.id).innerText = "Colore (EBC): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ebc * 1000) / 1000;
-    document.getElementById("ibu-"+obj.id).innerText = "Amarezza (IBU): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ibu * 1000) / 1000;
-    document.getElementById("co2-"+obj.id).innerText = "Carbonazione (g/l): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.co2 * 1000) / 1000;
+    document.getElementById("abv-"+obj.id).innerText = "Alcol (vol): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.abv * 10) / 10;
+    document.getElementById("ebc-"+obj.id).innerText = "Colore (EBC): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ebc * 10) / 10;
+    document.getElementById("ibu-"+obj.id).innerText = "Amarezza (IBU): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ibu * 10) / 10;
+    document.getElementById("co2-"+obj.id).innerText = "Carbonazione (g/l): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.co2 * 100) / 100;
 
 }
 
@@ -839,34 +839,6 @@ function mergeActivities(){
     let selectedFlow = document.getElementById(id);
     let container = document.getElementById("grid-container");
 
-    /*
-    let activityType;
-
-    switch(selectedFlow.getAttribute("about")){
-        case flow.MASH_WATER:
-        case flow.POST_MASH_WORT: {
-            activityType = activity.MASHING;
-            break;
-        }
-        case flow.POST_BOIL_WORT: {
-            activityType = activity.BOILING;
-            break;
-        }
-        case flow.FLAT_BEER: {
-            activityType = activity.FERMENTING;
-            break;
-        }
-        case flow.CARBONATED_BEER:{
-            activityType = activity.BOTTLING;
-            break;
-        }
-
-    }
-
-
-*/
-
-
     if(isToMerged===true && flowToMerge !== selectedFlow){
         let styleSelectedFlow = window.getComputedStyle(selectedFlow);
         let rowSelectedFlow = parseInt(styleSelectedFlow.getPropertyValue('grid-row-start'));
@@ -890,7 +862,7 @@ function mergeActivities(){
         if(parseInt(rowSelectedFlow) < styleFlowToMerge.getPropertyValue('grid-row-start')){
             document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerupSMALL.png";
             document.getElementById("imgS" + selectedFlow.getAttribute("id").substring(2)).src = "symbols/tubing/singleintersectiondownSMALL.png";
-            addBottomImg(selectedFlow, "symbols/tubing/verticalSMALL.png", selectedFlow.getAttribute("id").substring(2), 1);
+            //addBottomImg(selectedFlow, "symbols/tubing/verticalSMALL.png", selectedFlow.getAttribute("id").substring(2), 1);
 
         }else{
             document.getElementById("imgS" + flowToMerge.getAttribute("id").substring(2)).src = "symbols/tubing/leftcornerdownSMALL.png";
@@ -920,8 +892,9 @@ function mergeActivities(){
 
         //let newFlow = createFlow(row, parseInt(column) + 2, "symbols/tubingsmall/simpleSMALL.png",
             //selectedFlow.getAttribute("about"), parseInt(selectedFlow.getAttribute("position"))+2);
-        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.add_merge(selectedFlow.getAttribute("position"), recipes[rowSelectedFlow].flow, selectedFlow.getAttribute("position"));
-        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.brew();
+        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.add_merge(flowToMerge.getAttribute("position"), recipes[rowSelectedFlow].flow, selectedFlow.getAttribute("position"));
+
+
         //container.appendChild(newActivity);
         //container.appendChild(newFlow);
         let newPos = parseInt(selectedFlow.getAttribute("position"))+2;
@@ -931,6 +904,8 @@ function mergeActivities(){
 
         isToMerged =false;
 
+        recipes[1].flow.brew();
+        update();
     }
 }
 
@@ -1049,7 +1024,7 @@ function deleteActivity(obj){
 
 
     recipes[1].flow.brew();
-    updateData();
+    //updateData();
     update();
 }
 
@@ -1162,7 +1137,7 @@ function splitActivities(obj){
     let img = document.getElementById("imgS" + obj.id.substring(2));
     if(img.src.includes("simple")) {
         img.src = "symbols/tubing/singleintersectiondownSMALL.png";
-        addBottomImg(document.getElementById(obj.id), 'url("symbols/tubing/verticalSMALL.png")', obj.id.substring(2,3), 1);
+        //addBottomImg(document.getElementById(obj.id), 'url("symbols/tubing/verticalSMALL.png")', obj.id.substring(2,3), 1);
 
     }else if(img.src.includes("begin")){
         img.src = "symbols/tubing/splittedbeginSMALL.png";
@@ -1293,6 +1268,8 @@ function createFlow(row, column, path, about,  pos){
     grid_item.style.gridColumn = column +"/ "+ column;
     grid_item.style.marginLeft = "0px";
     grid_item.style.marginRight = "0px";
+    grid_item.style.backgroundImage = "symbols/tubing/verticalSMALL.png";
+    grid_item.style.backgroundRepeat = "repeat";
 
     elem_container = document.createElement("div");
     elem_container.setAttribute("class", "elem-container");
@@ -1356,7 +1333,8 @@ function createFlow(row, column, path, about,  pos){
 
 function addBottomImg(elem_container, path, id, n){
     let div = document.createElement("div");
-    div.style.height = "80px";
+    div.style.height = "inherit";
+    div.style.minHeight = "5px";
 
     div.style.backgroundImage = path;
     div.style.backgroundRepeat = "repeat";
@@ -1416,18 +1394,22 @@ function saveMash(idElement){
     params.mash_efficiency_weight = parseFloat(document.getElementById(idElement+"_efficiency").value);
     params.mash_loss = parseFloat(document.getElementById(idElement+"_mash_loss").value);
 
-    for(let n=0; n<=lastMalt; n++){
-        let maltslist = document.getElementById(idElement+"_mash_malt"+n);
+    let maltsElement = document.getElementById("mash_malts_"+idElement).children;
+
+    for(let n=1; n<maltsElement.length; n++){
+        let temp = idElement+"_mash_malt"+maltsElement[n].getAttribute("num");
+        let elNum = parseInt(maltsElement[n].getAttribute("num"));
+        let maltslist = document.getElementById(idElement+"_mash_malt"+elNum);
         let selectedMaltName = maltslist.options[maltslist.selectedIndex].value;
 
         for(let i=0; i<malts.length;i++){
             if(malts[i].name == selectedMaltName){
-                params.malts[n] = malts[i];
-                let temp1 = idElement+"_malt_EBC"+n;
-                let temp = document.getElementById(idElement+"_malt_EBC"+n).value;
+                params.malts[n-1] = malts[i];
+                let temp1 = idElement+"_malt_EBC"+elNum;
+                let temp = document.getElementById(idElement+"_malt_EBC"+elNum).value;
                 let temp3 = parseFloat(temp);
-                params.malts[n].ebc = temp3;
-                params.malts[n].weight = parseFloat(document.getElementById(idElement+"_malt_weight"+n).value);
+                params.malts[n-1].ebc = temp3;
+                params.malts[n-1].weight = parseFloat(document.getElementById(idElement+"_malt_weight"+elNum).value);
             }
         }
     }
@@ -1455,16 +1437,19 @@ function saveBoil(idElement){
     params.water_addition= parseFloat(document.getElementById(idElement+"_water").value);
     params.boil_loss = parseFloat(document.getElementById(idElement+"_boil_loss").value);
 
-    for(let n=0; n<=lastHop; n++) {
-        let hopslist = document.getElementById(idElement + "_boil_hop"+n);
+    let hopsElement = document.getElementById("boil_hops_"+idElement).children;
+
+    for(let n=1; n<hopsElement.length; n++) {
+        let elNum = parseInt(hopsElement[n].getAttribute("num"));
+        let hopslist = document.getElementById(idElement + "_boil_hop"+elNum);
         let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
 
         for (let i = 0; i < hops.length; i++) {
             if (hops[i].name == selectedHopName) {
-                params.hops[n] = hops[i];
-                params.hops[n].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
-                params.hops[n].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
-                params.hops[n].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
+                params.hops[n-1] = hops[i];
+                params.hops[n-1].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+elNum).value);
+                params.hops[n-1].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+elNum).value);
+                params.hops[n-1].time = parseFloat(document.getElementById(idElement+"_hop_time"+elNum).value);
             }
         }
     }
@@ -1491,20 +1476,23 @@ function saveFerment(idElement){
     for(let i=0; i<yeasts.length;i++){
         if(yeasts[i].name == selectedYeastName){
             params.yeast[0] = yeasts[i];
-            params.yeast[i].attenuation = parseFloat(document.getElementById(idElement+"_yeast_aa0").value);
+            params.yeast[0].attenuation = parseFloat(document.getElementById(idElement+"_yeast_aa0").value);
         }
     }
 
-    for(let n=0; n<=lastHop; n++) {
-        let hopslist = document.getElementById(idElement + "_ferment_hop"+n);
+    let hopsElement = document.getElementById("ferment_hops_"+idElement).children;
+
+    for(let n=1; n<hopsElement.length; n++) {
+        let elNum = parseInt(hopsElement[n].getAttribute("num"));
+        let hopslist = document.getElementById(idElement + "_ferment_hop"+elNum);
         let selectedHopName = hopslist.options[hopslist.selectedIndex].value;
 
         for (let i = 0; i < hops.length; i++) {
             if (hops[i].name == selectedHopName) {
-                params.hops[n] = hops[i];
-                params.hops[n].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+n).value);
-                params.hops[n].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+n).value);
-                params.hops[n].time = parseFloat(document.getElementById(idElement+"_hop_time"+n).value);
+                params.hops[n-1] = hops[i];
+                params.hops[n-1].aa = parseFloat(document.getElementById(idElement+"_hop_aa"+elNum).value);
+                params.hops[n-1].weight = parseFloat(document.getElementById(idElement+"_hop_weight"+elNum).value);
+                params.hops[n-1].time = parseFloat(document.getElementById(idElement+"_hop_time"+elNum).value);
             }
         }
     }
@@ -1520,11 +1508,11 @@ function saveBottle(idElement){
     let recipe = recipes[row].flow;
     let params = recipe.process[position].params;
 
-    params.prime[0].qty = parseFloat(document.getElementById(id+"_sucrose").value);
-    params.prime[1].qty = parseFloat(document.getElementById(id+"_dextrose").value);
-    params.prime[2].qty = parseFloat(document.getElementById(id+"_extract").value);
-    params.prime[3].qty = parseFloat(document.getElementById(id+"_speise").value);
-    params.bottling_loss = parseFloat(document.getElementById(id+"_bottling_loss").value);
+    params.prime[0].qty = parseFloat(document.getElementById(idElement+"_sucrose").value);
+    params.prime[1].qty = parseFloat(document.getElementById(idElement+"_dextrose").value);
+    params.prime[2].qty = parseFloat(document.getElementById(idElement+"_extract").value);
+    params.prime[3].qty = parseFloat(document.getElementById(idElement+"_speise").value);
+    params.bottling_loss = parseFloat(document.getElementById(idElement+"_bottling_loss").value);
 
     recipe.brew();
     update();
@@ -1533,7 +1521,7 @@ function saveBottle(idElement){
 function updateData(){
 
     let el = event.currentTarget;
-    let id = el.getAttribute("id").substring(0,3);
+    let id = el.getAttribute("elem");
     let wrapper = document.getElementById("wrapper-"+id);
     let type = document.getElementById(id).getAttribute("about");
     let row = parseInt(window.getComputedStyle(document.getElementById(id)).getPropertyValue('grid-row-start'));
@@ -1632,7 +1620,7 @@ function fillFermentHopsList(idHop, idEl){
 function setOptionParams(id){
 
     let el = event.currentTarget;
-    let idContainer = el.getAttribute("id").substring(0,3);
+    let idContainer = el.getAttribute("elem");
     if(el.getAttribute("id").includes("malt")){
 
         let selectedMaltName = el.options[el.selectedIndex].value;
@@ -1682,17 +1670,19 @@ function setOptionParams(id){
 
 function addElement() {
     let el = event.currentTarget;
-    let id = el.getAttribute("id").substring(0,3);
+    let id = el.getAttribute("elem");
     if(el.getAttribute("id").includes("malt")){
         let maltsDiv = document.getElementById("mash_malts_"+id);
         lastMalt +=1;
         let newMalt = document.createElement("div");
         newMalt.setAttribute("id", id+"_malt"+lastMalt+"DIV");
-
+        newMalt.setAttribute("elem", id);
+        newMalt.setAttribute("num", lastMalt);
         let select = document.createElement("select");
         select.setAttribute("name", "malt"+lastMalt);
         select.setAttribute("id", id+"_mash_malt"+lastMalt);
         select.setAttribute("num", lastMalt);
+        select.setAttribute("elem", id);
         select.onchange= function(){
             setOptionParams(select.getAttribute("num"));
         };
@@ -1700,6 +1690,9 @@ function addElement() {
         let labelButton = document.createElement("label");
         let buttonDelete = document.createElement("button");
         buttonDelete.setAttribute("id", id+"_remove_malt"+lastMalt);
+        buttonDelete.setAttribute("elem", id);
+        buttonDelete.setAttribute("num", lastMalt);
+        buttonDelete.setAttribute("type", "malt");
         buttonDelete.innerText = "-";
         buttonDelete.onclick = function (){
             removeElement();
@@ -1723,11 +1716,13 @@ function addElement() {
         lastHop +=1;
         let newHop = document.createElement("div");
         newHop.setAttribute("id", id+"_boil_hop"+lastHop+"DIV");
-
+        newHop.setAttribute("elem", id);
+        newHop.setAttribute("num", lastHop);
         let select = document.createElement("select");
         select.setAttribute("name", "hop"+lastHop);
         select.setAttribute("id", id+"_boil_hop"+lastHop);
         select.setAttribute("num", lastMalt);
+        select.setAttribute("elem", id);
         select.onchange= function(){
             setOptionParams(select.getAttribute("num"));
         };
@@ -1735,6 +1730,9 @@ function addElement() {
         let labelButton = document.createElement("label");
         let buttonDelete = document.createElement("button");
         buttonDelete.setAttribute("id", id+"_remove_boil_hop"+lastHop);
+        buttonDelete.setAttribute("elem", id);
+        buttonDelete.setAttribute("num", lastHop);
+        buttonDelete.setAttribute("type", "boil_hop");
         buttonDelete.innerText = "-";
         buttonDelete.onclick = function (){
             removeElement();
@@ -1758,11 +1756,13 @@ function addElement() {
         lastHop +=1;
         let newHop = document.createElement("div");
         newHop.setAttribute("id", id+"_ferment_hop"+lastHop+"DIV");
-
+        newHop.setAttribute("elem", id);
+        newHop.setAttribute("num", lastHop);
         let select = document.createElement("select");
         select.setAttribute("name", "hop"+lastHop);
         select.setAttribute("id", id+"_ferment_hop"+lastHop);
         select.setAttribute("num", lastMalt);
+        select.setAttribute("elem", id);
         select.onchange= function(){
             setOptionParams(select.getAttribute("num"));
         };
@@ -1770,6 +1770,9 @@ function addElement() {
         let labelButton = document.createElement("label");
         let buttonDelete = document.createElement("button");
         buttonDelete.setAttribute("id", id+"_remove_ferment_hop"+lastHop);
+        buttonDelete.setAttribute("elem", id);
+        buttonDelete.setAttribute("num", lastHop);
+        buttonDelete.setAttribute("type", "ferment_hop");
         buttonDelete.innerText = "-";
         buttonDelete.onclick = function (){
             removeElement();
@@ -1814,6 +1817,7 @@ function createLabel(name, id, element, unit){
     let input = document.createElement("input");
     input.setAttribute("type", "number");
     input.setAttribute("step", "0.1");
+    input.setAttribute("elem", element);
     input.style.width = "3em";
     input.setAttribute("id", element+"_"+id);
     input.onchange = function () {
@@ -1829,6 +1833,7 @@ function createOtherLabel(name, id, element, type, unit){
     let input = document.createElement("input");
     input.setAttribute("type", "number");
     input.setAttribute("step", "0.1");
+    input.setAttribute("elem", element);
     input.style.width = "3em";
     input.setAttribute("id", element+"_"+type+"_"+id);
     input.onchange = function () {
@@ -1840,26 +1845,28 @@ function createOtherLabel(name, id, element, type, unit){
 
 function removeElement (){
     let el = event.currentTarget;
-    let id = el.getAttribute("id");
-    let gridEl = document.getElementById(id.substring(0,3));
+    let id = el.getAttribute("elem");
+    let num = el.getAttribute("num");
+    let type = el.getAttribute("type");
+    let gridEl = document.getElementById(id);
     let rowEl = getRow(gridEl);
-    let divToDelete = document.getElementById(id.substring(0,3)+"_"+id.substring(11)+"DIV");
-    if(id.includes("malt")){
-        document.getElementById("mash_malts_"+id.substring(0,3)).removeChild(divToDelete);
-        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.malts.splice([parseInt(id.substring(11))],1);
-        lastMalt--;
-    }else if(id.includes("boil_hop")){
-        document.getElementById("boil_hops_"+id.substring(0,3)).removeChild(divToDelete);
-        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(id.substring(11))],1);
-        lastHop--;
-    }else if(id.includes("ferment_hop")){
-        document.getElementById("ferment_hops_"+id.substring(0,3)).removeChild(divToDelete);
-        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(id.substring(11))],1);
-        lastHop--;
+    let divToDelete = document.getElementById(id+"_"+type+num+"DIV");
+    if(type.includes("malt")){
+        document.getElementById("mash_malts_"+id).removeChild(divToDelete);
+        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.malts.splice([parseInt(num)],1);
+        //lastMalt--;
+    }else if(type.includes("boil_hop")){
+        document.getElementById("boil_hops_"+id).removeChild(divToDelete);
+        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(num)],1);
+        //lastHop--;
+    }else if(type.includes("ferment_hop")){
+        document.getElementById("ferment_hops_"+id).removeChild(divToDelete);
+        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(num)],1);
+        //lastHop--;
     }
 
     recipes[1].flow.brew();
-    updateData();
+    //updateData();
     update();
 
 }
@@ -1913,34 +1920,44 @@ function createMashElements(data, id, type){
 
     let malts = document.createElement("div");
     malts.setAttribute("id", type+"_malts_"+id);
+    malts.setAttribute("elem", id);
     let p = document.createElement("p");
     p.innerText = "Malti";
     malts.appendChild(p);
     let malt0 = document.createElement("div");
     malt0.setAttribute("id", id+"_malt0DIV");
+    malt0.setAttribute("elem", id);
+    malt0.setAttribute("num", 0);
     let select = document.createElement("select");
     select.setAttribute("name", "malt0");
     select.setAttribute("id", id+"_"+type+"_malt0");
     select.setAttribute("num", 0);
+    select.setAttribute("elem", id);
     select.onchange = function (){ setOptionParams(select.getAttribute("num"))};
     malt0.appendChild(select);
     malt0.appendChild(document.createElement("br"));
     malt0.appendChild(createOtherLabel("EBC", "EBC0", id, "malt"));
     malt0.appendChild(createOtherLabel("kg", "weight0", id,"malt"));
+    /*
     let labelButton = document.createElement("label");
     let buttonRemove = document.createElement("button");
     buttonRemove.setAttribute("id", id+"_remove_malt0");
+    buttonRemove.setAttribute("elem", id);
+    buttonRemove.setAttribute("num", "0");
+    buttonRemove.setAttribute("type", "malt");
     buttonRemove.onclick = function () {
         removeElement();
     };
     buttonRemove.innerText = "-";
     labelButton.appendChild(buttonRemove);
     malt0.appendChild(labelButton);
+    */
     malts.appendChild(malt0);
     data.appendChild(malts);
     let divAddButton = document.createElement("div");
     let buttonAdd = document.createElement("button");
     buttonAdd.setAttribute("id", id+"_add_malt");
+    buttonAdd.setAttribute("elem", id);
     buttonAdd.onclick = function () {
         addElement();
     };
@@ -1960,35 +1977,44 @@ function createBoilElements(data, id, type){
 
     let hops = document.createElement("div");
     hops.setAttribute("id", type+"_hops_"+id);
+    hops.setAttribute("elem", id);
     let p = document.createElement("p");
     p.innerText = "Luppoli";
     hops.appendChild(p);
     let hop0 = document.createElement("div");
     hop0.setAttribute("id", id+"_boil_hop0DIV");
+    hop0.setAttribute("elem", id);
+    hop0.setAttribute("num", 0);
     let select = document.createElement("select");
     select.setAttribute("name", "hop0");
     select.setAttribute("id", id+"_"+type+"_hop0");
     select.setAttribute("num", 0);
+    select.setAttribute("elem", id);
     select.onchange = function (){ setOptionParams(select.getAttribute("num"))};
     hop0.appendChild(select);
     hop0.appendChild(document.createElement("br"));
     hop0.appendChild(createOtherLabel("AA%", "aa0", id, "hop"));
     hop0.appendChild(createOtherLabel("min", "time0", id,"hop"));
     hop0.appendChild(createOtherLabel("g", "weight0", id, "hop"));
+    /*
     let labelButton = document.createElement("label");
     let buttonRemove = document.createElement("button");
     buttonRemove.setAttribute("id", id+"_remove_boil_hop0");
+    buttonRemove.setAttribute("num", "0");
+    buttonRemove.setAttribute("type", "boil_hop");
     buttonRemove.onclick = function () {
         removeElement();
     };
     buttonRemove.innerText = "-";
     labelButton.appendChild(buttonRemove);
     hop0.appendChild(labelButton);
+    */
     hops.appendChild(hop0);
     data.appendChild(hops);
     let divAddButton = document.createElement("div");
     let buttonAdd = document.createElement("button");
     buttonAdd.setAttribute("id", id+"_add_boil_hop");
+    buttonAdd.setAttribute("elem", id);
     buttonAdd.onclick = function () {
         addElement();
     };
@@ -2010,15 +2036,19 @@ function createFermentElements(data, id, type){
 
     let yeasts = document.createElement("div");
     yeasts.setAttribute("id", type+"_yeast_"+id);
+    yeasts.setAttribute("elem", id);
     let p1 = document.createElement("p");
     p1.innerText = "Lievito";
     yeasts.appendChild(p1);
     let yeast0 = document.createElement("div");
     yeast0.setAttribute("id", id+"_yeast0DIV");
+    yeast0.setAttribute("elem", id);
+    yeast0.setAttribute("num", 0);
     let select1 = document.createElement("select");
     select1.setAttribute("name", "yeast0");
     select1.setAttribute("id", id+"_"+type+"_yeast0");
     select1.setAttribute("num", 0);
+    select1.setAttribute("elem", id);
     select1.onchange = function (){ setOptionParams(select1.getAttribute("num"))};
     yeast0.appendChild(select1);
     yeast0.appendChild(document.createElement("br"));
@@ -2028,35 +2058,44 @@ function createFermentElements(data, id, type){
 
     let hops = document.createElement("div");
     hops.setAttribute("id", type+"_hops_"+id);
+    hops.setAttribute("elem", id);
     let p2 = document.createElement("p");
     p2.innerText = "Luppoli in dry hopping";
     hops.appendChild(p2);
     let hop0 = document.createElement("div");
-    hop0.setAttribute("id", id+"_fermentadd_hop0DIV");
+    hop0.setAttribute("id", id+"_ferment_hop0DIV");
+    hop0.setAttribute("elem", id);
+    hop0.setAttribute("num", 0);
     let select2 = document.createElement("select");
     select2.setAttribute("name", "hop0");
     select2.setAttribute("id", id+"_"+type+"_hop0");
     select2.setAttribute("num", 0);
+    select2.setAttribute("elem", id);
     select2.onchange = function (){ setOptionParams(select2.getAttribute("num"))};
     hop0.appendChild(select2);
     hop0.appendChild(document.createElement("br"));
     hop0.appendChild(createOtherLabel("AA%", "aa0", id, "hop"));
     hop0.appendChild(createOtherLabel("giorni", "time0", id, "hop"));
     hop0.appendChild(createOtherLabel("g", "weight0", id, "hop"));
+    /*
     let labelButton = document.createElement("label");
     let buttonRemove = document.createElement("button");
     buttonRemove.setAttribute("id", id+"_remove_ferment_hop0");
+    buttonRemove.setAttribute("num", "0");
+    buttonRemove.setAttribute("type", "ferment_hop");
     buttonRemove.onclick = function () {
         removeElement();
     };
     buttonRemove.innerText = "-";
     labelButton.appendChild(buttonRemove);
     hop0.appendChild(labelButton);
+    */
     hops.appendChild(hop0);
     data.appendChild(hops);
     let divAddButton = document.createElement("div");
     let buttonAdd = document.createElement("button");
     buttonAdd.setAttribute("id", id+"_add_ferment_hop");
+    buttonAdd.setAttribute("elem", id);
     buttonAdd.onclick = function () {
         addElement();
     };
