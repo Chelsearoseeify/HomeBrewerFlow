@@ -527,7 +527,7 @@ function Recipe() {
         branch.process = JSON.parse(JSON.stringify(this.process));
         // split also all ingredients?
 
-        branch.flow = JSON.parse(JSON.stringify(this.state));
+        branch.libRecipe = JSON.parse(JSON.stringify(this.state));
         while (branch.state.length > 1)
             branch.state.shift();
         branch.state[0].vol = volume;

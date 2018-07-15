@@ -87,7 +87,7 @@ function MemorySplit(origin, destination, position, column){
 
 function Recipe(id, recipe, first_action){
     this.id = id; //id corresponds to the row in which the recipe is setted
-    this.flow = recipe;
+    this.libRecipe = recipe;
     this.stack = [first_action];
     this.splitStack = [];
 
@@ -117,8 +117,8 @@ initRecipe();
 function initRecipe (){
     recipe = new Recipe(1, homebrewlib.newRecipe(), flow.MASH_WATER);
     recipes[1] = recipe;
-    recipes[1].flow.set_equipment(equipment);
-    recipes[1].flow.brew();
+    recipes[1].libRecipe.set_equipment(equipment);
+    recipes[1].libRecipe.brew();
 }
 
 function setRecipeName(){
@@ -140,9 +140,9 @@ function setObjectSelected(id){
         if(!(objSelected.about === "Mash water") && objSelected.type === "flow" ){
             //objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2].name;
             let i=0;
-            objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2-i].name;
+            objSelected.previousFlowAbout = recipes[objSelected.row].libRecipe.process[objSelected.position - 2-i].name;
             while(objSelected.previousFlowAbout.includes("Split flow")||objSelected.previousFlowAbout.includes("Start flow")){
-                objSelected.previousFlowAbout = recipes[objSelected.row].flow.process[objSelected.position - 2-i].name;
+                objSelected.previousFlowAbout = recipes[objSelected.row].libRecipe.process[objSelected.position - 2-i].name;
                 i +=2;
             }
         }
@@ -164,6 +164,25 @@ function getImage(obj){
     return document.getElementById("imgS"+obj.getAttribute("id").substring(2));
 }
 
+
+function clearAll(){
+    let gridContainer = document.getElementById("grid-container");
+    let children = gridContainer.children;
+
+    for(let i = children.length-1; i>0; i--){
+        if(children[i].getAttribute("id") != "el0"){
+            gridContainer.removeChild(children[i]);
+        }
+    }
+
+    recipes = [];
+    isToMerged = false;
+    lastCreatedElement = 0;
+    lastMalt = 0;
+    lastHop =0;
+    lastYeast = 0;
+    initRecipe();
+}
 
 function appear() {
     let id = event.currentTarget.id;
@@ -448,18 +467,18 @@ function showWrapper(obj){
 }
 
 function updateParams(obj){
-    document.getElementById("vol-"+obj.id).innerText = "Volume: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.vol * 100) / 100;
-    document.getElementById("og-"+obj.id).innerText = "Densità originale: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.og * 1000) / 1000;
-    document.getElementById("fg-"+obj.id).innerText = "Densità finale: " + Math.round(recipes[obj.row].flow.process[obj.position].plan.fg * 1000) / 1000;
-    document.getElementById("abv-"+obj.id).innerText = "Alcol (vol): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.abv * 10) / 10;
-    document.getElementById("ebc-"+obj.id).innerText = "Colore (EBC): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ebc * 10) / 10;
-    document.getElementById("ibu-"+obj.id).innerText = "Amarezza (IBU): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.ibu * 10) / 10;
-    document.getElementById("co2-"+obj.id).innerText = "Carbonazione (g/l): " + Math.round(recipes[obj.row].flow.process[obj.position].plan.co2 * 100) / 100;
+    document.getElementById("vol-"+obj.id).innerText = "Volume: " + Math.round(recipes[obj.row].libRecipe.process[obj.position].plan.vol * 100) / 100;
+    document.getElementById("og-"+obj.id).innerText = "Densità originale: " + Math.round(recipes[obj.row].libRecipe.process[obj.position].plan.og * 1000) / 1000;
+    document.getElementById("fg-"+obj.id).innerText = "Densità finale: " + Math.round(recipes[obj.row].libRecipe.process[obj.position].plan.fg * 1000) / 1000;
+    document.getElementById("abv-"+obj.id).innerText = "Alcol (vol): " + Math.round(recipes[obj.row].libRecipe.process[obj.position].plan.abv * 10) / 10;
+    document.getElementById("ebc-"+obj.id).innerText = "Colore (EBC): " + Math.round(recipes[obj.row].libRecipe.process[obj.position].plan.ebc * 10) / 10;
+    document.getElementById("ibu-"+obj.id).innerText = "Amarezza (IBU): " + Math.round(recipes[obj.row].libRecipe.process[obj.position].plan.ibu * 10) / 10;
+    document.getElementById("co2-"+obj.id).innerText = "Carbonazione (g/l): " + Math.round(recipes[obj.row].libRecipe.process[obj.position].plan.co2 * 100) / 100;
 
 }
 
 function showDataInActivity(type, position, row, id){
-    let recipe = recipes[row].flow;
+    let recipe = recipes[row].libRecipe;
 
     switch(type){
         case activity.MASHING:{
@@ -749,7 +768,7 @@ function hideData(ident){
 function addActivity(obj, activityType){
 
     let container = document.getElementById("grid-container");
-    let recipe = recipes[obj.row].flow;
+    let recipe = recipes[obj.row].libRecipe;
     let flowType;
     let path;
     switch(activityType){
@@ -892,19 +911,19 @@ function mergeActivities(){
 
         //let newFlow = createFlow(row, parseInt(column) + 2, "symbols/tubingsmall/simpleSMALL.png",
             //selectedFlow.getAttribute("about"), parseInt(selectedFlow.getAttribute("position"))+2);
-        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].flow.add_merge(flowToMerge.getAttribute("position"), recipes[rowSelectedFlow].flow, selectedFlow.getAttribute("position"));
+        recipes[window.getComputedStyle(flowToMerge).getPropertyValue('grid-row-start')].libRecipe.add_merge(flowToMerge.getAttribute("position"), recipes[rowSelectedFlow].libRecipe, selectedFlow.getAttribute("position"));
 
 
         //container.appendChild(newActivity);
         //container.appendChild(newFlow);
         let newPos = parseInt(selectedFlow.getAttribute("position"))+2;
         selectedFlow.setAttribute("position", newPos);
-        selectedFlow.setAttribute("about", recipes[window.getComputedStyle(selectedFlow).getPropertyValue('grid-row-start')].flow.process[newPos].name);
+        selectedFlow.setAttribute("about", recipes[window.getComputedStyle(selectedFlow).getPropertyValue('grid-row-start')].libRecipe.process[newPos].name);
 
 
         isToMerged =false;
 
-        recipes[1].flow.brew();
+        recipes[1].libRecipe.brew();
         update();
     }
 }
@@ -926,7 +945,7 @@ function deleteActivity(obj){
                 if(recipes[i].splitStack[j].destRecipeId === obj.row){
                     sourceRecipe = recipes[i].splitStack[j].orRecipeId;
                     posOfSplit = recipes[i].splitStack[j].position;
-                    recipes[sourceRecipe].flow.delete(posOfSplit+1);
+                    recipes[sourceRecipe].libRecipe.delete(posOfSplit+1);
                 }
             }
         }
@@ -968,14 +987,14 @@ function deleteActivity(obj){
             if(items[i].getAttribute("position") >= posOfSplit+2 &&
                 window.getComputedStyle(items[i]).getPropertyValue('grid-row-start') == sourceRecipe){
                 items[i].setAttribute("position", parseInt(items[i].getAttribute("position"))-2);
-                items[i].setAttribute("about", recipes[sourceRecipe].flow.process[parseInt(items[i].getAttribute("position"))].name);
+                items[i].setAttribute("about", recipes[sourceRecipe].libRecipe.process[parseInt(items[i].getAttribute("position"))].name);
             }
         }
     }
 
     if(recipes[obj.row] != null) {
-        while (recipes[obj.row].flow.process[obj.position] != null) {
-            recipes[obj.row].flow.delete(obj.position);
+        while (recipes[obj.row].libRecipe.process[obj.position] != null) {
+            recipes[obj.row].libRecipe.delete(obj.position);
         }
 
         if (recipes[obj.row].splitStack.length !== 0) {
@@ -1023,7 +1042,7 @@ function deleteActivity(obj){
     }
 
 
-    recipes[1].flow.brew();
+    recipes[1].libRecipe.brew();
     //updateData();
     update();
 }
@@ -1093,7 +1112,7 @@ function splitActivities(obj){
     }
 
     let newRecipe = homebrewlib.newRecipe();
-    recipes[obj.row].flow.add_split(obj.position, newRecipe);
+    recipes[obj.row].libRecipe.add_split(obj.position, newRecipe);
     recipes[obj.row].setSplit(obj.row, newRow, obj.position, obj.column);
 
     if(recipes.length === obj.row+1) // se l'array contiene come ultimo elemento la ricetta corrente
@@ -1120,8 +1139,8 @@ function splitActivities(obj){
 
     //var originStack = recipes[row].stack;
     for( let i = 1; i<=obj.position; i++){
-        let temp = recipes[obj.row].flow.process[i];
-        if(temp.type === "flow" && temp.name !== "Split flow")
+        let temp = recipes[obj.row].libRecipe.process[i];
+        if(temp.type === "787flow" && temp.name !== "Split flow")
             recipes[newRow].addElementToStack(temp.name);
     }
 
@@ -1350,9 +1369,9 @@ function setSplitAmount(){
     let gridItem = el.parentElement.parentElement;
     let source_element = document.getElementById(gridItem.getAttribute("source"));
     let targetObj = setObjectSelected(source_element.getAttribute("id"));
-    recipes[targetObj.row].flow.process[targetObj.position-1].params.vol = el.value;
+    recipes[targetObj.row].libRecipe.process[targetObj.position-1].params.vol = el.value;
 
-    recipes[targetObj.row].flow.brew();
+    recipes[targetObj.row].libRecipe.brew();
     update();
 }
 
@@ -1367,7 +1386,7 @@ function setParams(item, id){
 }
 
 function update(){
-    recipes[1].flow.brew();
+    recipes[1].libRecipe.brew();
     let gridcontainer = document.getElementById("grid-container");
     let items = gridcontainer.children;
 
@@ -1387,7 +1406,7 @@ function saveMash(idElement){
     let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
     let position = document.getElementById(idElement).getAttribute("position");
 
-    let recipe = recipes[row].flow;
+    let recipe = recipes[row].libRecipe;
     let params = recipe.process[position].params;
     params.mash_water = parseFloat(document.getElementById(idElement+"_mash_water").value);
     params.sparge_water = parseFloat(document.getElementById(idElement+"_sparge_water").value);
@@ -1414,7 +1433,7 @@ function saveMash(idElement){
         }
     }
     if(row=1){
-        recipes[row].flow.process[0].plan.vol = parseFloat(document.getElementById(idElement+"_mash_water").value);
+        recipes[row].libRecipe.process[0].plan.vol = parseFloat(document.getElementById(idElement+"_mash_water").value);
     }
 
 
@@ -1428,7 +1447,7 @@ function saveBoil(idElement){
     let position = document.getElementById(idElement).getAttribute("position");
 
 
-    let recipe = recipes[row].flow;
+    let recipe = recipes[row].libRecipe;
     let params = recipe.process[position].params;
 
     params.time = parseFloat(document.getElementById(idElement+"_time").value);
@@ -1463,7 +1482,7 @@ function saveFerment(idElement){
     let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
     let position = document.getElementById(idElement).getAttribute("position");
 
-    let recipe = recipes[row].flow;
+    let recipe = recipes[row].libRecipe;
     let params = recipe.process[position].params;
 
     params.temperature = parseFloat(document.getElementById(idElement+"_temp").value);
@@ -1505,7 +1524,7 @@ function saveBottle(idElement){
     let row = parseInt(window.getComputedStyle(document.getElementById(idElement)).getPropertyValue('grid-row-start'));
     let position = document.getElementById(idElement).getAttribute("position");
 
-    let recipe = recipes[row].flow;
+    let recipe = recipes[row].libRecipe;
     let params = recipe.process[position].params;
 
     params.prime[0].qty = parseFloat(document.getElementById(idElement+"_sucrose").value);
@@ -1529,7 +1548,7 @@ function updateData(){
 
     //let id = wrapper.getAttribute("ref-row");
     //let position = wrapper.getAttribute("ref-pos");
-    let recipe = recipes[row].flow;
+    let recipe = recipes[row].libRecipe;
     let params = recipe.process[position].params;
 
     switch(type){
@@ -1662,7 +1681,7 @@ function setOptionParams(id){
         document.getElementById(idContainer+"_yeast_aa"+id).value = selectedYeast.attenuation;
     }
 
-    recipes[1].flow.brew();
+    recipes[1].libRecipe.brew();
     updateData();
     update();
 
@@ -1853,19 +1872,19 @@ function removeElement (){
     let divToDelete = document.getElementById(id+"_"+type+num+"DIV");
     if(type.includes("malt")){
         document.getElementById("mash_malts_"+id).removeChild(divToDelete);
-        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.malts.splice([parseInt(num)],1);
+        recipes[rowEl].libRecipe.process[parseInt(gridEl.getAttribute("position"))].params.malts.splice([parseInt(num)],1);
         //lastMalt--;
     }else if(type.includes("boil_hop")){
         document.getElementById("boil_hops_"+id).removeChild(divToDelete);
-        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(num)],1);
+        recipes[rowEl].libRecipe.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(num)],1);
         //lastHop--;
     }else if(type.includes("ferment_hop")){
         document.getElementById("ferment_hops_"+id).removeChild(divToDelete);
-        recipes[rowEl].flow.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(num)],1);
+        recipes[rowEl].libRecipe.process[parseInt(gridEl.getAttribute("position"))].params.hops.splice([parseInt(num)],1);
         //lastHop--;
     }
 
-    recipes[1].flow.brew();
+    recipes[1].libRecipe.brew();
     //updateData();
     update();
 
@@ -1897,7 +1916,7 @@ function createWrapper(type, pos, row, id){
         }
         case activity.BOTTLING:{
             createBottleElements(data, id);
-            recipes[row].flow.process[pos].params = { prime: [
+            recipes[row].libRecipe.process[pos].params = { prime: [
                     { type: 'Sucrose',  qty: 0.0},
                     { type: 'Dextrose', qty: 0.0},
                     { type: 'Extract',  qty: 0.0},
